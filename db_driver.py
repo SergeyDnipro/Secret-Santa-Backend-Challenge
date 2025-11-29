@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List
+from typing import List, Union
 
 
 class SQLiteDatabaseConnection:
@@ -60,7 +60,7 @@ class SQLiteDatabaseConnection:
         self.execute_query(query)
 
 
-    def new_game(self, game_name: str):
+    def new_game(self, game_name: str) -> str:
         # Create new instance (new game) in 'games' table
         query = """
         INSERT INTO games (game_name)
@@ -120,7 +120,7 @@ class SQLiteDatabaseConnection:
         return {"status": True, "message": "Successful", "result": result[0]}
 
 
-    def get_players_by_game_name(self, game_name: str):
+    def get_players_by_game_name(self, game_name: str) -> Union[dict, str]:
         game = self.get_game(game_name)
         if not game["result"]:
             return game["message"]
@@ -128,7 +128,8 @@ class SQLiteDatabaseConnection:
         query = """
         SELECT 
             players.player_id, 
-            players.player_name, 
+            players.player_name,
+            players.player_giver,
             players.player_receiver
         FROM players
         LEFT JOIN games ON players.game_id = games.id
@@ -140,8 +141,6 @@ class SQLiteDatabaseConnection:
         players_list = self.execute_query(query, get_params)
 
         return {"game": game["result"], "players": players_list}
-
-
 
 
     def lock_game_by_name(self, game_name: str) -> str:

@@ -22,6 +22,7 @@ def serialize_game_list(game_list: List[tuple]):
 
     return final_row
 
+
 def serialize_game(game_result: Union[dict, str]):
     if isinstance(game_result, str):
         return game_result
@@ -41,7 +42,44 @@ def serialize_game(game_result: Union[dict, str]):
 
     for number, player in enumerate(players_data, start=1):
 
-        receiver = player[2] if player[2] else "None"
+        receiver = player[3] if player[3] else "None"
         msg += f"{number}. {player[1]} -> gives to: {receiver}\n"
 
     return msg
+
+
+def players_to_dict(game_data: dict):
+    if isinstance(game_data, str):
+        return game_data
+
+    players = [
+        {
+            "id": player[0],
+            "name": player[1],
+            "giver": player[2],
+            "receiver": player[3],
+        } for player in game_data["players"]
+    ]
+    players = [
+        {'id': 1, 'name': 'Sergey', 'giver': None, 'receiver': None},
+        {'id': 2, 'name': 'Alex', 'giver': None, 'receiver': None},
+        {'id': 3, 'name': 'Anna', 'giver': None, 'receiver': None}
+    ]
+    receivers = players[:]
+    for i in range(len(players)):
+        if players[i]["id"] == receivers[i]["id"]:
+            if i < len(players) - 1:
+                receivers[i], receivers[i + 1] = receivers[i + 1], receivers[i]
+            else:
+                receivers[i], receivers[i - 1] = receivers[i - 1], receivers[i]
+
+
+    print(players)
+    print(receivers)
+    for giver, receiver in zip(players, receivers):
+        giver["receiver"] = receiver["name"]
+        receiver["giver"] = giver["name"]
+
+    print(players)
+    return players
+

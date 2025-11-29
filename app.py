@@ -5,7 +5,7 @@ import os
 import telebot
 from db_driver import db
 from config import buttons, misc
-from tools import serialize_game_list, serialize_game
+from tools import serialize_game_list, serialize_game, players_to_dict
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -48,6 +48,9 @@ def handle_message(message):
     elif message.text == buttons.GET_GAME_DATA_BUTTON:
         bot.send_message(message.chat.id, f"Enter game ID for display game data:")
         bot.register_next_step_handler(message, get_game_data)
+    elif message.text == buttons.START_GAME_BUTTON:
+        bot.send_message(message.chat.id, f"Enter game ID for start game:")
+        bot.register_next_step_handler(message, run_game_by_name)
 
 
 def choice_game(message):
@@ -101,8 +104,9 @@ def get_game_data(message):
 
 
 def run_game_by_name(message):
-    result = db.get_players_by_game_name(message.text)
-    output_msg = serialize_game(result)
+    game_data = db.get_players_by_game_name(message.text)
+    players_to_dict(game_data)
+
 
 
 if __name__ == '__main__':
