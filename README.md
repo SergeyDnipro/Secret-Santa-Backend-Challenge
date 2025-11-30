@@ -1,4 +1,3 @@
-# secret_santa_tg_game
 Secret Santa game (Telegram bot)
 
 Steps to run on local machine:
