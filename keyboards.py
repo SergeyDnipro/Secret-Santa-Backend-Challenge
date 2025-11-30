@@ -1,6 +1,5 @@
 from telebot import types
 from telebot.types import Message
-
 from config import buttons
 
 
@@ -19,12 +18,15 @@ def admin_main_keyboard():
     join_game_button = types.KeyboardButton(text=buttons.JOIN_GAME_BUTTON)
     lock_game_button = types.KeyboardButton(text=buttons.LOCK_GAME_BUTTON)
     keyboard.add(new_game_button, join_game_button, lock_game_button)
-
     start_game_button = types.KeyboardButton(text=buttons.START_GAME_BUTTON)
     keyboard.add(start_game_button)
     get_game_data_button = types.KeyboardButton(text=buttons.GET_GAME_DATA_BUTTON)
     list_games_button = types.KeyboardButton(text=buttons.LIST_GAMES_BUTTON)
     keyboard.add(list_games_button, get_game_data_button)
+    export_results_button = types.KeyboardButton(text=buttons.EXPORT_GAME_BUTTON)
+    keyboard.add(export_results_button)
+    purge_database_button = types.KeyboardButton(text=buttons.CLEAR_DATABASE_BUTTON)
+    keyboard.add(purge_database_button)
 
     return keyboard
 
@@ -33,4 +35,12 @@ def user_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     join_game = types.KeyboardButton(text=buttons.JOIN_GAME_BUTTON)
     keyboard.add(join_game)
+    return keyboard
+
+
+def clear_database_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    confirm_button = types.KeyboardButton(text=buttons.YES_BUTTON)
+    reject_button = types.KeyboardButton(text=buttons.NO_BUTTON)
+    keyboard.add(confirm_button, reject_button)
     return keyboard

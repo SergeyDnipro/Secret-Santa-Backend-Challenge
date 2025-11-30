@@ -10,7 +10,6 @@ from tools import serialize_game_list, serialize_game
 from service import game_service, notification_service
 
 
-
 BASE_DIR = os.path.dirname(__file__) # project/
 ENV_PATH = os.path.join(BASE_DIR, "config", ".env")
 
@@ -55,6 +54,11 @@ def handle_message(message):
     elif message.text == buttons.START_GAME_BUTTON:
         bot.send_message(message.chat.id, f"Enter game ID for start game:")
         bot.register_next_step_handler(message, run_game_by_name)
+    elif message.text == buttons.CLEAR_DATABASE_BUTTON:
+        bot.send_message(message.chat.id, f"Confirm your choice", reply_markup=keyboards.clear_database_keyboard())
+        bot.register_next_step_handler(message, clear_database)
+    elif message.text == buttons.EXPORT_GAME_BUTTON:
+        bot.send_message(message.chat.id, f"Export game data:")
 
 
 def choice_game(message):
@@ -120,6 +124,22 @@ def run_game_by_name(message):
         msg,
         reply_markup=keyboards.get_main_interface_keyboard(message=message, ids=ADMIN_IDS)
     )
+
+
+def clear_database(message):
+    if message.text == buttons.YES_BUTTON:
+        msg = db.delete_all_records()
+        bot.send_message(
+            message.chat.id,
+            msg,
+            reply_markup=keyboards.get_main_interface_keyboard(message=message, ids=ADMIN_IDS)
+        )
+    elif message.text == buttons.NO_BUTTON:
+        bot.send_message(
+            message.chat.id,
+            "Return to the main menu",
+            reply_markup=keyboards.get_main_interface_keyboard(message=message, ids=ADMIN_IDS))
+        bot.register_next_step_handler(message, handle_message)
 
 
 if __name__ == '__main__':

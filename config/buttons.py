@@ -8,6 +8,7 @@ LIST_GAMES_BUTTON = "All Games"
 CLEAR_DATABASE_BUTTON = "Clear Database"
 GET_GAME_DATA_BUTTON = "Game Info"
 
+
 # Query keyboard buttons
 YES_BUTTON = "Yes"
 NO_BUTTON = "No"

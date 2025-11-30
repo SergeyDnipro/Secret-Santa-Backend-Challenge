@@ -62,6 +62,14 @@ class SQLiteDatabaseConnection:
         self.execute_query(query)
 
 
+    def delete_all_records(self):
+        query = """
+        DELETE FROM games;
+        """
+        self.execute_query(query)
+        return "DB cleared"
+
+
     def new_game(self, game_name: str) -> str:
         # Create new instance (new game) in 'games' table
         query = """
