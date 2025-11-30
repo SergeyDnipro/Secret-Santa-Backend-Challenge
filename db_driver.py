@@ -8,13 +8,15 @@ class SQLiteDatabaseConnection:
         self.create_check_table()
 
 
-    def execute_query(self, query: str, params=None):
+    def execute_query(self, query: str, params=None, many=False):
         """Execute a SQL query with optional parameters and return results if available."""
         try:
             with sqlite3.connect(self.database_name) as db_conn:
                 db_conn.execute("PRAGMA foreign_keys = ON;")
                 cursor = db_conn.cursor()
-                if params is not None:
+                if many:
+                    cursor.executemany(query, params)
+                elif params is not None:
                     cursor.execute(query, params)
                 else:
                     cursor.execute(query)
@@ -130,7 +132,8 @@ class SQLiteDatabaseConnection:
             players.player_id, 
             players.player_name,
             players.player_giver,
-            players.player_receiver
+            players.player_receiver,
+            players.player_telegram_id
         FROM players
         LEFT JOIN games ON players.game_id = games.id
         WHERE games.game_name = :game_name
@@ -185,6 +188,35 @@ class SQLiteDatabaseConnection:
 
         except sqlite3.IntegrityError as e:
             return f"You can join a game: {game_name} only once"
+
+
+    def bulk_update_game_and_players(self, game_data: dict):
+        query = """
+                UPDATE games
+                SET
+                    game_locked = :locked,
+                    game_completed = :completed
+                WHERE id = :id;
+                """
+
+        game_id = game_data["game"]["id"]
+        locked = game_data["game"]["game_locked"]
+        completed = game_data["game"]["game_completed"]
+
+        params = {"id": game_id, "locked": locked, "completed": completed}
+        self.execute_query(query, params)
+
+        query = """
+                UPDATE players
+                SET
+                    player_giver = :giver,
+                    player_receiver = :receiver
+                WHERE player_id = :id;
+                """
+
+        self.execute_query(query, game_data["players"], many=True)
+
+        return {"message": "Game drawn successfully"}
 
 
 db = SQLiteDatabaseConnection('santa.sqlite3')

@@ -1,11 +1,14 @@
 import types
-import keyboards
-from dotenv import load_dotenv
 import os
 import telebot
+import keyboards
+import queue, threading
+from dotenv import load_dotenv
 from db_driver import db
 from config import buttons, misc
-from tools import serialize_game_list, serialize_game, players_to_dict
+from tools import serialize_game_list, serialize_game
+from service import game_service, notification_service
+
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -15,6 +18,7 @@ load_dotenv(ENV_PATH)
 
 TOKEN = os.getenv("TG_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS").split(',')))
+msg_queue = queue.Queue()
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -105,9 +109,25 @@ def get_game_data(message):
 
 def run_game_by_name(message):
     game_data = db.get_players_by_game_name(message.text)
-    players_to_dict(game_data)
+    game_result = game_service.draw_the_game(game_data)
+    msg = db.bulk_update_game_and_players(game_result)
 
+    for player_data in game_data["players"]:
+        msg_queue.put((player_data["user_chat_id"], player_data["receiver"]))
+
+    bot.send_message(
+        message.chat.id,
+        msg,
+        reply_markup=keyboards.get_main_interface_keyboard(message=message, ids=ADMIN_IDS)
+    )
 
 
 if __name__ == '__main__':
+
+    threading.Thread(
+        target=notification_service.send_notification,
+        args=(bot, msg_queue),
+        daemon=True
+    ).start()
+
     bot.infinity_polling()
