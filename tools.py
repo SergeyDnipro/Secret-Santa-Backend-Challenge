@@ -1,7 +1,9 @@
 from typing import List, Tuple, Union
 
 
-def serialize_game_list(game_list: List[tuple]):
+def serialize_game_list(game_list: List[tuple]) -> str:
+    """ Create output string for displaying list of games in Telegram """
+
     final_row = ""
     for game_data in game_list:
         if not game_data[3] and not game_data[4]:
@@ -24,6 +26,8 @@ def serialize_game_list(game_list: List[tuple]):
 
 
 def serialize_game(game_result: Union[dict, str]):
+    """ Create output string to display extended info for game """
+
     if isinstance(game_result, str):
         return game_result
 
@@ -43,6 +47,6 @@ def serialize_game(game_result: Union[dict, str]):
     for number, player in enumerate(players_data, start=1):
 
         receiver = player[3] if player[3] else "None"
-        msg += f"{number}. {player[1]} -> gives to: {receiver}\n"
+        msg += f"{number}. {player[1]} -> giver to: {receiver}\n"
 
     return msg

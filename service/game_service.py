@@ -2,6 +2,13 @@ from typing import List, Union
 
 
 def draw_the_game(game_data: dict) -> Union[dict, str]:
+    """
+    Perform a Secret Santa draw for a game.
+        - Shuffles receivers so no player gives a gift to themselves.
+        - Assigns 'giver' and 'receiver' fields for each player.
+        - Updates the game_data dict with the drawn results.
+    """
+
     if isinstance(game_data, str):
         return game_data
 

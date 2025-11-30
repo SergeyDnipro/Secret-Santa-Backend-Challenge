@@ -63,6 +63,8 @@ class SQLiteDatabaseConnection:
 
 
     def delete_all_records(self):
+        """ Purge 'games' tables (and related 'players') """
+
         query = """
         DELETE FROM games;
         """
@@ -71,7 +73,8 @@ class SQLiteDatabaseConnection:
 
 
     def new_game(self, game_name: str) -> str:
-        # Create new instance (new game) in 'games' table
+        """ Create new game and return its name back to telegram """
+
         query = """
         INSERT INTO games (game_name)
         VALUES (:game_name);
@@ -95,6 +98,8 @@ class SQLiteDatabaseConnection:
 
 
     def get_all_games(self) -> List[tuple]:
+        """ Get all games in DB, including qty of every game players """
+
         query = """
         SELECT games.*, COUNT(players.player_id) AS players_count
         FROM games
@@ -107,6 +112,7 @@ class SQLiteDatabaseConnection:
 
 
     def get_game(self, game_name: str) -> dict:
+        """ Get game data """
         query = """
         SELECT
             games.id,
@@ -131,6 +137,8 @@ class SQLiteDatabaseConnection:
 
 
     def get_players_by_game_name(self, game_name: str) -> Union[dict, str]:
+        """ Get all game data, including players """
+
         game = self.get_game(game_name)
         if not game["result"]:
             return game["message"]
@@ -155,6 +163,8 @@ class SQLiteDatabaseConnection:
 
 
     def lock_game_by_name(self, game_name: str) -> str:
+        """ Lock game for new player registration """
+
         game = self.get_game(game_name)
 
         if not game["status"]:
@@ -173,6 +183,8 @@ class SQLiteDatabaseConnection:
 
 
     def join_game_by_name(self, game_name: str, player_name: str, player_telegram_id: int) -> str:
+        """ Join open for registration game. Check constraints """
+
         game = self.get_game(game_name)
         if not game["status"]:
             return game["message"]
@@ -199,6 +211,8 @@ class SQLiteDatabaseConnection:
 
 
     def bulk_update_game_and_players(self, game_data: dict):
+        """ Bulk update 'games' and 'players' tables due the drawing results """
+
         query = """
                 UPDATE games
                 SET

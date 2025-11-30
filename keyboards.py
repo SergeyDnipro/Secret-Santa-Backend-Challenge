@@ -27,7 +27,6 @@ def admin_main_keyboard():
     keyboard.add(export_results_button)
     purge_database_button = types.KeyboardButton(text=buttons.CLEAR_DATABASE_BUTTON)
     keyboard.add(purge_database_button)
-
     return keyboard
 
 
