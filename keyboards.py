@@ -7,7 +7,8 @@ def get_main_interface_keyboard(message:Message, ids=None):
     if ids is None:
         ids = []
 
-    admin_role = message.chat.id in ids
+    # admin_role = message.chat.id in ids
+    admin_role = True
     keyboard = admin_main_keyboard() if admin_role else user_main_keyboard()
     return keyboard
 
