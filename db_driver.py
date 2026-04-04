@@ -3,7 +3,7 @@ from typing import List, Union
 
 
 class SQLiteDatabaseConnection:
-    def __init__(self, database_name: str):
+    def __init__(self, *, database_name: str):
         self.database_name = database_name
         self.create_check_table()
 
@@ -38,6 +38,7 @@ class SQLiteDatabaseConnection:
         CREATE TABLE IF NOT EXISTS games (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            creator_id INTEGER,
             game_name TEXT NOT NULL UNIQUE,
             game_locked INTEGER DEFAULT 0,
             game_completed INTEGER DEFAULT 0
@@ -72,15 +73,15 @@ class SQLiteDatabaseConnection:
         return "DB cleared"
 
 
-    def new_game(self, game_name: str) -> str:
+    def new_game(self, game_name: str, creator_id: int) -> str:
         """ Create new game and return its name back to telegram """
 
         query = """
-        INSERT INTO games (game_name)
-        VALUES (:game_name);
+        INSERT INTO games (game_name, creator_id)
+        VALUES (:game_name, :creator_id);
         """
 
-        params = {"game_name": game_name}
+        params = {"game_name": game_name, "creator_id": creator_id}
         new_game_id = self.execute_query(query, params)
 
         # Update record (with following 'new_game_id') with 'new_game_name'
@@ -241,4 +242,4 @@ class SQLiteDatabaseConnection:
         return {"message": "Game drawn successfully"}
 
 
-db = SQLiteDatabaseConnection('santa.sqlite3')
+db = SQLiteDatabaseConnection(database_name='santa.sqlite3')

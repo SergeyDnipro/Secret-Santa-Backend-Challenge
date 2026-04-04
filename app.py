@@ -36,7 +36,7 @@ def start(message):
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     if message.text == buttons.NEW_GAME_BUTTON:
-        new_game_str = db.new_game(game_name=misc.BASE_GAME_NAME)
+        new_game_str = db.new_game(game_name=misc.BASE_GAME_NAME, creator_id=message.from_user.id)
         bot.send_message(message.chat.id, f"New game created: {new_game_str}")
     elif message.text == buttons.LIST_GAMES_BUTTON:
         all_games = db.get_all_games()
