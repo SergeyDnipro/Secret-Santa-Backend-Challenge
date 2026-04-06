@@ -9,7 +9,7 @@ class SQLiteDatabaseConnection:
 
 
     def execute_query(self, query: str, params=None, many=False):
-        """Execute a SQL query with optional parameters and return results if available."""
+        """Execute the SQL query with optional parameters and return results if available."""
         try:
             with sqlite3.connect(self.database_name) as db_conn:
                 db_conn.execute("PRAGMA foreign_keys = ON;")
@@ -74,7 +74,7 @@ class SQLiteDatabaseConnection:
 
 
     def new_game(self, game_name: str, creator_id: int) -> str:
-        """ Create new game and return its name back to telegram """
+        """ Create the new game and return its name_id to telegram """
 
         query = """
         INSERT INTO games (game_name, creator_id)
@@ -99,7 +99,7 @@ class SQLiteDatabaseConnection:
 
 
     def get_all_games(self) -> List[tuple]:
-        """ Get all games in DB, including qty of every game players """
+        """ Get all games in DB, including qty of every game player """
 
         query = """
         SELECT games.*, COUNT(players.player_id) AS players_count
