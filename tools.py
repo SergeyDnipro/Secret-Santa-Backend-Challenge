@@ -1,3 +1,5 @@
+import secrets
+import string
 from typing import List, Tuple, Union
 
 
@@ -50,3 +52,12 @@ def serialize_game(game_result: Union[dict, str]):
         msg += f"{number}. {player[1]} -> giver to: {receiver}\n"
 
     return msg
+
+
+def generate_passcode(passcode_length: int = 6) -> str:
+    """ Generate random passcode for game join allowing. """
+    passcode_symbols = string.ascii_letters + string.digits
+
+    passcode = ''.join(secrets.choice(passcode_symbols) for _ in range(passcode_length))
+
+    return passcode

@@ -1,5 +1,15 @@
 import sqlite3
+from datetime import datetime
 from typing import List, Union
+from dataclasses import dataclass, fields
+
+
+@dataclass
+class Game:
+    id: int
+    created_at: datetime
+    creator_id: int
+
 
 
 class SQLiteDatabaseConnection:
@@ -40,6 +50,7 @@ class SQLiteDatabaseConnection:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             creator_id INTEGER,
             game_name TEXT NOT NULL UNIQUE,
+            game_passcode TEXT NOT NULL,
             game_locked INTEGER DEFAULT 0,
             game_completed INTEGER DEFAULT 0
          );
@@ -73,33 +84,33 @@ class SQLiteDatabaseConnection:
         return "DB cleared"
 
 
-    def new_game(self, game_name: str, creator_id: int) -> str:
+    def new_game(self, game_name: str, creator_id: int, game_passcode: str) -> str:
         """ Create the new game and return its name_id to telegram """
 
         query = """
-        INSERT INTO games (game_name, creator_id)
-        VALUES (:game_name, :creator_id);
+        INSERT INTO games (game_name, creator_id, game_passcode)
+        VALUES (:game_name, :creator_id, :game_passcode);
         """
 
-        params = {"game_name": game_name, "creator_id": creator_id}
-        new_game_id = self.execute_query(query, params)
+        params = {"game_name": game_name, "creator_id": creator_id, "game_passcode": game_passcode}
+        game_id = self.execute_query(query, params)
 
-        # Update record (with following 'new_game_id') with 'new_game_name'
-        new_game_name = f"{game_name}_{new_game_id}"
+        # Update record (with following 'game_id') with 'new_game_name'
+        new_game_name = f"{game_name}_{game_id}"
         update_query = """
         UPDATE games
         SET game_name = :new_game_name
-        WHERE id = :new_game_id;
+        WHERE id = :game_id;
         """
 
-        update_params = {"new_game_name": new_game_name, "new_game_id": new_game_id}
+        update_params = {"new_game_name": new_game_name, "game_id": game_id}
         self.execute_query(update_query, update_params)
 
         return new_game_name
 
 
     def get_all_games(self) -> List[tuple]:
-        """ Get all games in DB, including qty of every game player """
+        """ Get all games in DB, including qty of players in every game """
 
         query = """
         SELECT games.*, COUNT(players.player_id) AS players_count
@@ -129,9 +140,9 @@ class SQLiteDatabaseConnection:
 
         if not result:
             return {"status": False, "message": f"Game: {game_name} not found", "result": None}
-        elif result[0][3]:
+        elif result[0][5]:
             return {"status": False, "message": f"Game: {game_name} already locked", "result": result[0]}
-        elif result[0][4]:
+        elif result[0][6]:
             return {"status": False, "message": f"Game: {game_name} already completed", "result": result[0]}
 
         return {"status": True, "message": "Successful", "result": result[0]}

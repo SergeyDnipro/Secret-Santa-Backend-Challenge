@@ -1,6 +1,10 @@
 from typing import List, Union
 
 
+def create_new_game(message):
+    pass
+
+
 def draw_the_game(game_data: dict) -> Union[dict, str]:
     """
     Perform a Secret Santa draw for a game.
