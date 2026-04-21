@@ -6,8 +6,9 @@ import queue, threading
 from dotenv import load_dotenv
 from db_driver import db
 from config import buttons, misc
-from tools import serialize_game_list, serialize_game
+from tools import serialize_game_list, serialize_game, generate_passcode
 from service import game_service, notification_service, export_result_service
+from models import Game, Player, class_repr_converter
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -39,8 +40,15 @@ def handle_message(message):
     admin_role = message.from_user.id in ADMIN_IDS
 
     if message.text == buttons.NEW_GAME_BUTTON:
-        new_game_str = db.new_game(game_name=misc.BASE_GAME_NAME, creator_id=message.from_user.id)
-        bot.send_message(message.chat.id, f"New game created: {new_game_str}")
+        game = class_repr_converter(
+            cls=Game,
+            data=db.new_game(
+                game_name=misc.BASE_GAME_NAME,
+                creator_id=message.from_user.id,
+                game_passcode=generate_passcode()
+            )
+        )[0]
+        bot.send_message(message.chat.id, f"New game created: {game.game_name}. Passcode: {game.game_passcode}")
     elif message.text == buttons.LIST_GAMES_BUTTON:
         all_games = db.get_all_games()
         all_games_str = serialize_game_list(all_games)

@@ -4,14 +4,6 @@ from typing import List, Union
 from dataclasses import dataclass, fields
 
 
-@dataclass
-class Game:
-    id: int
-    created_at: datetime
-    creator_id: int
-
-
-
 class SQLiteDatabaseConnection:
     def __init__(self, *, database_name: str):
         self.database_name = database_name
@@ -23,6 +15,7 @@ class SQLiteDatabaseConnection:
         try:
             with sqlite3.connect(self.database_name) as db_conn:
                 db_conn.execute("PRAGMA foreign_keys = ON;")
+                db_conn.row_factory = sqlite3.Row
                 cursor = db_conn.cursor()
                 if many:
                     cursor.executemany(query, params)
@@ -48,11 +41,12 @@ class SQLiteDatabaseConnection:
         CREATE TABLE IF NOT EXISTS games (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            creator_id INTEGER,
+            creator_telegram_id INTEGER,
             game_name TEXT NOT NULL UNIQUE,
             game_passcode TEXT NOT NULL,
             game_locked INTEGER DEFAULT 0,
-            game_completed INTEGER DEFAULT 0
+            game_completed INTEGER DEFAULT 0,
+            players_count INTEGER DEFAULT 0
          );
         """
         self.execute_query(query)
@@ -84,15 +78,15 @@ class SQLiteDatabaseConnection:
         return "DB cleared"
 
 
-    def new_game(self, game_name: str, creator_id: int, game_passcode: str) -> str:
+    def new_game(self, game_name: str, creator_id: int, game_passcode: str):
         """ Create the new game and return its name_id to telegram """
 
         query = """
-        INSERT INTO games (game_name, creator_id, game_passcode)
-        VALUES (:game_name, :creator_id, :game_passcode);
+        INSERT INTO games (game_name, creator_telegram_id, game_passcode)
+        VALUES (:game_name, :creator_telegram_id, :game_passcode);
         """
 
-        params = {"game_name": game_name, "creator_id": creator_id, "game_passcode": game_passcode}
+        params = {"game_name": game_name, "creator_telegram_id": creator_id, "game_passcode": game_passcode}
         game_id = self.execute_query(query, params)
 
         # Update record (with following 'game_id') with 'new_game_name'
@@ -106,7 +100,13 @@ class SQLiteDatabaseConnection:
         update_params = {"new_game_name": new_game_name, "game_id": game_id}
         self.execute_query(update_query, update_params)
 
-        return new_game_name
+        get_new_game_query = """
+        SELECT games.* FROM games
+        WHERE id = :game_id;
+        """
+        new_game_instance = self.execute_query(get_new_game_query, params={"game_id": game_id})
+        print(new_game_instance)
+        return new_game_instance
 
 
     def get_all_games(self) -> List[tuple]:
