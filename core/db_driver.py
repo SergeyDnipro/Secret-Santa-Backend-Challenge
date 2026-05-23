@@ -10,7 +10,7 @@ class SQLiteDatabaseConnection:
         self.create_check_table()
 
 
-    def execute_query(self, query: str, params=None, many=False):
+    def execute_query(self, query: str, params=None, many=False, fetchone_result=False):
         """Execute the SQL query with optional parameters and return results if available."""
         try:
             with sqlite3.connect(self.database_name) as db_conn:
@@ -26,6 +26,8 @@ class SQLiteDatabaseConnection:
                 db_conn.commit()
 
                 if cursor.description:
+                    if fetchone_result:
+                        return cursor.fetchone()
                     return cursor.fetchall()
                 return cursor.lastrowid
 
@@ -87,7 +89,7 @@ class SQLiteDatabaseConnection:
         """
 
         params = {"game_name": game_name, "creator_telegram_id": creator_id, "game_passcode": game_passcode}
-        game_id = self.execute_query(query, params)
+        game_id = self.execute_query(query, params=params)
 
         # Update record (with following 'game_id') with 'new_game_name'
         new_game_name = f"{game_name}_{game_id}"
@@ -98,19 +100,19 @@ class SQLiteDatabaseConnection:
         """
 
         update_params = {"new_game_name": new_game_name, "game_id": game_id}
-        self.execute_query(update_query, update_params)
+        self.execute_query(update_query, params=update_params, fetchone_result=True)
 
         get_new_game_query = """
         SELECT games.* FROM games
         WHERE id = :game_id;
         """
         new_game_instance = self.execute_query(get_new_game_query, params={"game_id": game_id})
-        print(new_game_instance)
+
         return new_game_instance
 
 
     def get_all_games(self) -> List[tuple]:
-        """ Get all games in DB, including qty of players in every game """
+        """ Get all games in DB, including qty of players in every game (Admin role needed) """
 
         query = """
         SELECT games.*, COUNT(players.player_id) AS players_count
@@ -120,6 +122,23 @@ class SQLiteDatabaseConnection:
         """
 
         result = self.execute_query(query)
+        return result
+
+
+    def get_games_by_creator(self, creator_id: int) -> List[tuple]:
+        """ Get all games in DB, including qty of players in every game (for requested creator ID) """
+
+        query = """
+        SELECT games.*, COUNT(players.player_id) AS players_count
+        FROM games
+        LEFT JOIN players ON games.id = players.game_id
+        WHERE games.creator_telegram_id = :creator_id
+        GROUP BY games.id;
+        """
+
+        params = {"creator_id": creator_id}
+
+        result = self.execute_query(query, params)
         return result
 
 

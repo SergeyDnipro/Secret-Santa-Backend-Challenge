@@ -1,14 +1,23 @@
-import types
 import os
 import telebot
 import keyboards
+import handlers
 import queue, threading
 from dotenv import load_dotenv
-from db_driver import db
-from config import buttons, misc
-from tools import serialize_game_list, serialize_game, generate_passcode
-from service import game_service, notification_service, export_result_service
-from models import Game, Player, class_repr_converter
+from core.db_driver import db
+from config import buttons
+from tools import serialize_game_list, serialize_game
+from service import game, notification, export, state, permission
+from models import class_repr_converter, Game
+
+
+def build_context(*, message, session):
+    return game.RequestContext(
+        bot=bot,
+        message=message,
+        session=session,
+        game_service=game_service
+    )
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -22,55 +31,66 @@ msg_queue = queue.Queue()
 bot = telebot.TeleBot(TOKEN)
 
 
+game_service = game.GameService(
+    permission=permission.PermissionService(admin_ids=ADMIN_IDS)
+)
+
+
 @bot.message_handler(commands=['start'])
-def start(message):
+@state.session
+def start(message, session: state.UserState):
     # New user start logging
     # main_logger.info(f"Start chat with user: {message.from_user.first_name} ({message.from_user.id})")
 
-    bot.send_message(
-        message.chat.id,
-        "Welcome to SecretSanta game",
-        reply_markup=keyboards.get_main_interface_keyboard(message=message, ids=ADMIN_IDS)
-    )
+    session.clear_state()
+    current_state = session.get_state()
+    ctx = build_context(message=message, session=session)
+
+    handler = handlers.handlers_mapping.get(current_state, handlers.common_handlers.fallback_handler)
+    handler(ctx)
 
 
 @bot.message_handler(func=lambda message: True)
-def handle_message(message):
+@state.session
+def handle_message(message, session: state.UserState):
 
-    admin_role = message.from_user.id in ADMIN_IDS
+    current_state = session.get_state()
+    ctx = build_context(message=message, session=session)
+    handler = handlers.handlers_mapping.get(current_state, handlers.common_handlers.fallback_handler)
+    handler(ctx)
 
-    if message.text == buttons.NEW_GAME_BUTTON:
-        game = class_repr_converter(
-            cls=Game,
-            data=db.new_game(
-                game_name=misc.BASE_GAME_NAME,
-                creator_id=message.from_user.id,
-                game_passcode=generate_passcode()
-            )
-        )[0]
-        bot.send_message(message.chat.id, f"New game created: {game.game_name}. Passcode: {game.game_passcode}")
-    elif message.text == buttons.LIST_GAMES_BUTTON:
-        all_games = db.get_all_games()
-        all_games_str = serialize_game_list(all_games)
-        bot.send_message(message.chat.id, f"GAMES LIST:\n\n{all_games_str}")
-    elif message.text == buttons.JOIN_GAME_BUTTON:
-        bot.send_message(message.chat.id, f"Enter GameID for join:")
-        bot.register_next_step_handler(message, choice_game)
-    elif message.text == buttons.LOCK_GAME_BUTTON:
-        bot.send_message(message.chat.id, f"Enter GameID for locking: ")
-        bot.register_next_step_handler(message, lock_game)
-    elif message.text == buttons.GET_GAME_DATA_BUTTON:
-        bot.send_message(message.chat.id, f"Enter GameID for display game data:")
-        bot.register_next_step_handler(message, get_game_data)
-    elif message.text == buttons.START_GAME_BUTTON:
-        bot.send_message(message.chat.id, f"Enter GameID for start game:")
-        bot.register_next_step_handler(message, run_game_by_name)
-    elif message.text == buttons.CLEAR_DATABASE_BUTTON:
-        bot.send_message(message.chat.id, f"Confirm your choice", reply_markup=keyboards.clear_database_keyboard())
-        bot.register_next_step_handler(message, clear_database)
-    elif message.text == buttons.EXPORT_GAME_BUTTON:
-        bot.send_message(message.chat.id, f"Enter GameID for results:")
-        bot.register_next_step_handler(message, export_results)
+    # if message.text == buttons.NEW_GAME_BUTTON:
+    #     response = game.create_new_game(creator_id=message.from_user.id, is_admin=user_role)
+    #     bot.send_message(message.chat.id, response.message)
+    #
+    # elif message.text == buttons.LIST_GAMES_BUTTON:
+    #     all_games = db.get_all_games()
+    #     all_games = class_repr_converter(
+    #         cls=Game,
+    #         data=all_games,
+    #         many=True
+    #     )
+    #     all_games_str = serialize_game_list(all_games)
+    #     bot.send_message(message.chat.id, f"GAMES LIST:\n\n{all_games_str}")
+    #
+    # elif message.text == buttons.JOIN_GAME_BUTTON:
+    #     bot.send_message(message.chat.id, f"Enter GameID for join:")
+    #     bot.register_next_step_handler(message, choice_game)
+    # elif message.text == buttons.LOCK_GAME_BUTTON:
+    #     bot.send_message(message.chat.id, f"Enter GameID for locking: ")
+    #     bot.register_next_step_handler(message, lock_game)
+    # elif message.text == buttons.GET_GAME_DATA_BUTTON:
+    #     bot.send_message(message.chat.id, f"Enter GameID for display game data:")
+    #     bot.register_next_step_handler(message, get_game_data)
+    # elif message.text == buttons.START_GAME_BUTTON:
+    #     bot.send_message(message.chat.id, f"Enter GameID for start game:")
+    #     bot.register_next_step_handler(message, run_game_by_name)
+    # elif message.text == buttons.CLEAR_DATABASE_BUTTON:
+    #     bot.send_message(message.chat.id, f"Confirm your choice", reply_markup=keyboards.clear_database_keyboard())
+    #     bot.register_next_step_handler(message, clear_database)
+    # elif message.text == buttons.EXPORT_GAME_BUTTON:
+    #     bot.send_message(message.chat.id, f"Enter GameID for results:")
+    #     bot.register_next_step_handler(message, export_results)
 
 
 def choice_game(message):
@@ -91,7 +111,7 @@ def choice_game(message):
 
 
 def join_game(message, game_name=None):
-    """ Handle entering 'full name' after Joining Game """
+    """ Handle entering 'full name' after Joining the Game """
     game_name = game_name
     player_name = message.text
     player_telegram_id = message.chat.id
@@ -129,10 +149,10 @@ def get_game_data(message):
 
 
 def run_game_by_name(message):
-    """ Handle 'run game' button. Draw Santa's Game due to the existing players """
+    """ Handle the 'run game' button. Draw Santa's Game due to the existing players """
 
     game_data = db.get_players_by_game_name(message.text)
-    game_result = game_service.draw_the_game(game_data)
+    game_result = game.draw_the_game(game_data)
     msg = db.bulk_update_game_and_players(game_result)
 
     for player_data in game_data["players"]:
@@ -170,7 +190,7 @@ def export_results(message):
     game_data = db.get_players_by_game_name(message.text)
 
     threading.Thread(
-        target=export_result_service.export_xls_worker,
+        target=export.export_xls_worker,
         args=(bot, message.chat.id, game_data),
         daemon=True
     ).start()
@@ -185,7 +205,7 @@ def export_results(message):
 if __name__ == '__main__':
 
     threading.Thread(
-        target=notification_service.send_notification_worker,
+        target=notification.send_notification_worker,
         args=(bot, msg_queue),
         daemon=True
     ).start()

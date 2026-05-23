@@ -1,23 +1,24 @@
 import secrets
 import string
 from typing import List, Tuple, Union
+from models import Game
 
 
-def serialize_game_list(game_list: List[tuple]) -> str:
-    """ Create output string for displaying list of games in Telegram """
+def serialize_game_list(game_list: List[Game]) -> str:
+    """ Create output string for displaying the list of games in Telegram """
 
     final_row = ""
     for game_data in game_list:
-        if not game_data[3] and not game_data[4]:
+        if not game_data.game_locked and not game_data.game_completed:
             game_status = "Open"
-        elif game_data[3] and not game_data[4]:
+        elif game_data.game_locked and not game_data.game_completed:
             game_status = "Closed"
         else:
             game_status = "Completed"
 
-        game_date = game_data[1].split()[0]
-        game_name = game_data[2]
-        players_qty = game_data[5]
+        game_date = game_data.created_at.strftime("%B %d, %Y")
+        game_name = game_data.game_name
+        players_qty = game_data.players_count
 
         final_row += f"Date: {game_date} | ID: {game_name} | Players: {players_qty} | Status: {game_status}\n"
 
