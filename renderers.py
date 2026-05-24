@@ -33,16 +33,17 @@ def new_game_creating_renderer(ctx):
     state = ctx.session.get_state()
     ctx.bot.send_message(
         ctx.message.chat.id,
-        f"Enter max players quantity (default {misc.MAX_PLAYERS})",
+        f"Enter max players quantity from 3 to 30 (default {misc.MAX_PLAYERS})",
         reply_markup=keyboards.STATE_KEYBOARDS.get(state)(ctx)
     )
 
 
-def not_valid_input_renderer(ctx):
+def not_valid_input_renderer(ctx, msg=None):
     state = ctx.session.get_state()
+    error_message = msg or "Unexpected input"
     ctx.bot.send_message(
         ctx.message.chat.id,
-        "You must choose an option on the following keyboard panel",
+        error_message,
         reply_markup=keyboards.STATE_KEYBOARDS.get(state)(ctx)
     )
 

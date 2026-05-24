@@ -1,13 +1,13 @@
 import os
 import telebot
 import keyboards
-import handlers
 import queue, threading
 from dotenv import load_dotenv
 from core.db_driver import db
 from config import buttons
 from tools import serialize_game_list, serialize_game
 from service import game, notification, export, state, permission
+from handlers import common_handlers, handlers_mapping
 from models import class_repr_converter, Game
 
 
@@ -46,7 +46,7 @@ def start(message, session: state.UserState):
     current_state = session.get_state()
     ctx = build_context(message=message, session=session)
 
-    handler = handlers.handlers_mapping.get(current_state, handlers.common_handlers.fallback_handler)
+    handler = handlers_mapping.get(current_state, common_handlers.fallback_handler)
     handler(ctx)
 
 
@@ -56,7 +56,7 @@ def handle_message(message, session: state.UserState):
 
     current_state = session.get_state()
     ctx = build_context(message=message, session=session)
-    handler = handlers.handlers_mapping.get(current_state, handlers.common_handlers.fallback_handler)
+    handler = handlers_mapping.get(current_state, common_handlers.fallback_handler)
     handler(ctx)
 
     # if message.text == buttons.NEW_GAME_BUTTON:
