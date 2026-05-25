@@ -1,3 +1,4 @@
 BASE_GAME_NAME = "SANTA"
 MAX_PLAYERS = 10
 MAX_GAMES = 5
+MAX_PLAYERS_KEY = "Max players count"

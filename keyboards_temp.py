@@ -36,6 +36,15 @@ def new_game_creating_keyboard(ctx):
     return keyboard
 
 
+def new_game_confirmation_keyboard(ctx):
+    keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    new_game_confirm_button = types.KeyboardButton(text=buttons.CONFIRM_BUTTON)
+    back_button = get_back_button()
+    keyboard.add(new_game_confirm_button, back_button)
+
+    return keyboard
+
+
 def my_service_keyboard(ctx):
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     get_game_data_button = types.KeyboardButton(text=buttons.GET_GAME_DATA_BUTTON)
@@ -103,5 +112,6 @@ STATE_KEYBOARDS = {
     states.MAIN_MENU: main_menu_keyboard,
     states.MY_GAMES_MENU: my_games_keyboard,
     states.SERVICE_MENU: my_service_keyboard,
-    states.NEW_GAME: new_game_creating_keyboard,
+    states.NEW_GAME_STARTS: new_game_creating_keyboard,
+    states.NEW_GAME_CREATED: new_game_confirmation_keyboard,
 }

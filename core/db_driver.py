@@ -44,11 +44,13 @@ class SQLiteDatabaseConnection:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             creator_telegram_id INTEGER,
+            creator_name TEXT,
             game_name TEXT NOT NULL UNIQUE,
             game_passcode TEXT NOT NULL,
             game_locked INTEGER DEFAULT 0,
             game_completed INTEGER DEFAULT 0,
-            players_count INTEGER DEFAULT 0
+            players_count INTEGER DEFAULT 0,
+            max_players_qty INTEGER DEFAULT 10
          );
         """
         self.execute_query(query)
@@ -80,15 +82,30 @@ class SQLiteDatabaseConnection:
         return "DB cleared"
 
 
-    def new_game(self, game_name: str, creator_id: int, game_passcode: str):
+    def new_game(
+            self,
+            *,
+            game_name: str,
+            creator_id: int,
+            creator_name: str,
+            game_passcode: str,
+            max_players_qty: int,
+    ):
         """ Create the new game and return its name_id to telegram """
 
         query = """
-        INSERT INTO games (game_name, creator_telegram_id, game_passcode)
-        VALUES (:game_name, :creator_telegram_id, :game_passcode);
+        INSERT INTO games (game_name, creator_telegram_id, creator_name, game_passcode, max_players_qty)
+        VALUES (:game_name, :creator_telegram_id, :creator_name, :game_passcode, :max_players_qty);
         """
 
-        params = {"game_name": game_name, "creator_telegram_id": creator_id, "game_passcode": game_passcode}
+        params = {
+            "game_name": game_name,
+            "creator_telegram_id": creator_id,
+            "creator_name": creator_name,
+            "game_passcode": game_passcode,
+            "max_players_qty": max_players_qty,
+        }
+
         game_id = self.execute_query(query, params=params)
 
         # Update record (with following 'game_id') with 'new_game_name'

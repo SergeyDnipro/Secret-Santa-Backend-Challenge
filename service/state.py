@@ -20,12 +20,25 @@ class UserState:
         return f"bot:user:{self.user_id}:history"
 
 
+    @property
+    def data_key(self):
+        return f"bot:user:{self.user_id}:data"
+
+
     def get_state(self):
         return self.user_state_store.get(self.state_key) or states.MAIN_MENU
 
 
     def set_state(self, state):
         self.user_state_store.set(self.state_key, state)
+
+
+    def set_data(self, key, value):
+        self.user_state_store.hset(self.data_key, key, value)
+
+
+    def get_data(self, key):
+        return self.user_state_store.hget(self.data_key, key)
 
 
     def go_forward(self, new_state):
@@ -44,6 +57,7 @@ class UserState:
     def clear_state(self):
         self.user_state_store.delete(self.state_key)
         self.user_state_store.delete(self.history_key)
+        self.user_state_store.delete(self.data_key)
 
 
     def reset_workflow(self, state=states.MAIN_MENU):

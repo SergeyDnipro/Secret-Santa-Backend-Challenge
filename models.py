@@ -1,6 +1,9 @@
 from dataclasses import dataclass, fields
 from datetime import datetime
 from typing import Any
+from telebot.types import Message
+from service.game import GameService
+from service.state import UserState
 
 
 def class_repr_converter(cls, data, temp_data=None, many=True):
@@ -63,3 +66,11 @@ class ServiceResponse:
     success: bool
     message: str
     data: Any = None
+
+
+@dataclass
+class RequestContext:
+    bot: Any
+    message: Message
+    session: UserState
+    game_service: GameService

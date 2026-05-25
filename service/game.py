@@ -1,4 +1,6 @@
 from typing import Union
+
+import service.state
 from models import Game, ServiceResponse, class_repr_converter
 from core.db_driver import db
 from config import misc
@@ -11,12 +13,12 @@ class GameService:
         self.permission = permission
 
 
-    def create_new_game(self, *, creator_id: int, is_admin: bool):
+    def create_new_game(self, *, creator_id: int, creator_username: str, max_players_qty: int) -> ServiceResponse:
         success = False
         new_game_class_repr = None
 
         try:
-            if not is_admin:
+            if not self.permission.is_admin(creator_id):
                 creator_games = db.get_games_by_creator(creator_id=creator_id)
                 if len(creator_games) >= misc.MAX_GAMES:
                     response_msg = f"Max games quantity reached ({misc.MAX_GAMES})"
@@ -25,7 +27,9 @@ class GameService:
             new_game_response = db.new_game(
                 game_name=misc.BASE_GAME_NAME,
                 creator_id=creator_id,
+                creator_name=creator_username,
                 game_passcode=generate_passcode(),
+                max_players_qty=max_players_qty,
             )
 
             new_game_class_repr = class_repr_converter(
@@ -95,11 +99,3 @@ class GameService:
         game_data["game"] = game
 
         return game_data
-
-
-class RequestContext:
-    def __init__(self, bot, message, session, game_service):
-        self.bot = bot
-        self.message = message
-        self.session = session
-        self.game_service = game_service
