@@ -1,7 +1,6 @@
 import renderers
 from config import states, buttons
 from core.context import RequestContext
-from service import state
 
 
 def welcome_menu_handler(ctx: RequestContext):

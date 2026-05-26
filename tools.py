@@ -18,9 +18,16 @@ def serialize_game_list(game_list: List[Game]) -> str:
 
         game_date = game_data.created_at.strftime("%B %d, %Y")
         game_name = game_data.game_name
+        game_passcode = game_data.game_passcode
         players_qty = game_data.players_count
 
-        final_row += f"Date: {game_date} | ID: {game_name} | Players: {players_qty} | Status: {game_status}\n"
+        final_row += (
+            f"Date: {game_date}\n"
+            f"ID: {game_name} | "
+            f"Passcode: {game_passcode}\n"
+            f"Players: {players_qty} | "
+            f"Status: {game_status}\n\n"
+        )
 
     if not game_list:
         final_row = "No games found"

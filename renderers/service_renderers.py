@@ -5,8 +5,9 @@ from core.context import RequestContext
 
 def my_services_renderer(ctx: RequestContext, msg=None):
     state = ctx.session.get_state()
+    msg = msg or f"Service Menu"
     ctx.bot.send_message(
         ctx.message.chat.id,
-        f"In this menu you can create, view and run services",
+        msg,
         reply_markup=keyboards.STATE_KEYBOARDS.get(state)(ctx)
     )

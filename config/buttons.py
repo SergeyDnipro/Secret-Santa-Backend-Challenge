@@ -6,13 +6,13 @@ LOCK_GAME_BUTTON = "Lock Game"
 JOIN_GAME_BUTTON = "Join Game"
 START_GAME_BUTTON = "Run Game"
 EXPORT_GAME_BUTTON = "Export results"
-LIST_GAMES_BUTTON = "My+ Games"
+LIST_GAMES_BUTTON = "My Games"
 LIST_CREATORS_BUTTON = "All Creators"
 CLEAR_DATABASE_BUTTON = "Clear Database"
 GET_GAME_DATA_BUTTON = "Game Info"
 
-GAME_MENU_BUTTON = "Game Menu"
-SERVICE_MENU_BUTTON = "Service Menu"
+GAME_MENU_BUTTON = "Game"
+SERVICE_MENU_BUTTON = "Service"
 
 # Query keyboard buttons
 YES_BUTTON = "Yes"

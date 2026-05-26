@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any
 
 
-
 def class_repr_converter(cls, data, temp_data=None, many=True):
     """ Convert data to dataclass objects. """
 
@@ -11,7 +10,7 @@ def class_repr_converter(cls, data, temp_data=None, many=True):
 
     if isinstance(data, list):
         for element in data:
-            class_repr_converter(cls, element, result_list)
+            class_repr_converter(cls=cls, data=element, temp_data=result_list)
 
     elif hasattr(data, "keys"):
         record_dict = {}

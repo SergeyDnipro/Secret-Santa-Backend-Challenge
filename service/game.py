@@ -3,7 +3,7 @@ import service.state
 from models import Game, ServiceResponse, class_repr_converter
 from core.db_driver import db
 from config import misc
-from tools import generate_passcode
+from tools import generate_passcode, serialize_game_list, serialize_game
 
 
 class GameService:
@@ -46,6 +46,25 @@ class GameService:
 
         return ServiceResponse(success=success, message=response_msg, data=new_game_class_repr)
 
+
+    def list_user_games(self, *, creator_id: int) -> ServiceResponse:
+        success = False
+        user_games_class_repr = None
+
+        try:
+            user_games_queryset = db.get_games_by_creator(creator_id=creator_id)
+
+            user_games_class_repr = class_repr_converter(
+                cls=Game,
+                data=user_games_queryset
+            )
+
+            response_msg = serialize_game_list(user_games_class_repr)
+
+        except ValueError as e:
+            response_msg=str(e)
+
+        return ServiceResponse(success=success, message=response_msg, data=user_games_class_repr)
 
 
     def draw_the_game(self, game_data: dict) -> Union[dict, str]:

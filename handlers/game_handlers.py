@@ -1,8 +1,7 @@
-import models
 import renderers
 from handlers import common_handlers
 from config import states, buttons, misc
-from service import state, game
+from service import state
 from core.context import RequestContext
 
 
@@ -33,22 +32,22 @@ def new_game_creating_handler(ctx: RequestContext):
         if 30 >= value >= 3:
             ctx.session.set_data(misc.MAX_PLAYERS_KEY, value)
             new_state = ctx.session.go_forward(states.NEW_GAME_CREATED)
-            msg = f"Creating game with {value} max players."
+            response_msg = f"Creating game with {value} max players."
         else:
             new_state = states.NOT_VALID_INPUT
-            msg = f"Players quantity must be between 3 and 30. Current value is: {value}"
+            response_msg = f"Players quantity must be between 3 and 30. Current value is: {value}"
     except ValueError:
         new_state = states.NOT_VALID_INPUT
-        msg = "Only digits allowed"
+        response_msg = "Only digits allowed"
 
     renderer = renderers.STATE_RENDERERS.get(new_state)
-    renderer(ctx, msg=msg)
+    renderer(ctx, msg=response_msg)
 
 
 def new_game_confirmation_handler(ctx: RequestContext):
     max_players_qty = ctx.session.get_data(misc.MAX_PLAYERS_KEY)
     command = ctx.message.text.strip().lower()
-    msg = None
+    response_msg = None
 
     if command == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
@@ -63,14 +62,14 @@ def new_game_confirmation_handler(ctx: RequestContext):
             creator_username=creator_username,
             max_players_qty=max_players_qty
         )
-        msg = response.message
+        response_msg = response.message
         ctx.session.clear_state()
         current_state = ctx.session.get_state()
     else:
         current_state = states.NOT_VALID_INPUT
 
     renderer = renderers.STATE_RENDERERS.get(current_state)
-    renderer(ctx, msg=msg)
+    renderer(ctx, msg=response_msg)
 
 
 def incorrect_input_handler(bot, message, session: state.UserState):

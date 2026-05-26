@@ -7,6 +7,19 @@ from service import state
 
 def my_services_menu_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
+    response_msg = None
 
     if command == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
+        return
+
+    elif command == buttons.LIST_GAMES_BUTTON.lower():
+        response = ctx.game_service.list_user_games(creator_id=ctx.message.from_user.id)
+        response_msg = response.message
+        current_state = ctx.session.get_state()
+
+    else:
+        current_state = states.NOT_VALID_INPUT
+
+    renderer = renderers.STATE_RENDERERS.get(current_state)
+    renderer(ctx, msg=response_msg)
