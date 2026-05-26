@@ -1,15 +1,16 @@
 import renderers
 from config import states, buttons
+from core.context import RequestContext
 from service import state
 
 
-def welcome_menu_handler(ctx):
+def welcome_menu_handler(ctx: RequestContext):
     keyboard_state = ctx.session.get_state()
     renderer = renderers.STATE_RENDERERS.get(keyboard_state)
     renderer(ctx)
 
 
-def main_page_handler(ctx):
+def main_page_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
 
     if command == buttons.GAME_MENU_BUTTON.lower():
@@ -23,7 +24,7 @@ def main_page_handler(ctx):
     renderer(ctx)
 
 
-def fallback_handler(ctx):
+def fallback_handler(ctx: RequestContext):
     previous_state = ctx.session.go_back()
     renderer = renderers.STATE_RENDERERS.get(previous_state)
     renderer(ctx)

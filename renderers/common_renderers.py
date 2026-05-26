@@ -1,8 +1,9 @@
 import keyboards
 from config import states, misc
+from core.context import RequestContext
 
 
-def welcome_game_renderer(ctx, msg=None):
+def welcome_game_renderer(ctx: RequestContext, msg=None):
 
     message_text = msg or f"Welcome to Secret Santa Game, {ctx.message.from_user.username}"
 
@@ -14,8 +15,8 @@ def welcome_game_renderer(ctx, msg=None):
     )
 
 
-def not_valid_input_renderer(ctx, msg=None):
-    error_message = msg or "Unexpected input"
+def not_valid_input_renderer(ctx: RequestContext, msg=None):
+    error_message = msg or "Unexpected input values..."
     state = ctx.session.get_state()
 
     ctx.bot.send_message(

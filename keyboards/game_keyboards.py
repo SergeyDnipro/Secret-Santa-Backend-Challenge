@@ -1,10 +1,11 @@
 from telebot import types
 from telebot.types import Message
 from config import buttons, states
+from core.context import RequestContext
 from keyboards.common_keyboards import get_back_button
 
 
-def my_games_keyboard(ctx):
+def my_games_keyboard(ctx: RequestContext):
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     new_game_button = types.KeyboardButton(text=buttons.NEW_GAME_BUTTON)
     join_game_button = types.KeyboardButton(text=buttons.JOIN_GAME_BUTTON)
@@ -16,7 +17,7 @@ def my_games_keyboard(ctx):
     return keyboard
 
 
-def new_game_creating_keyboard(ctx):
+def new_game_creating_keyboard(ctx: RequestContext):
     keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = get_back_button()
     keyboard.add(back_button)
@@ -24,7 +25,7 @@ def new_game_creating_keyboard(ctx):
     return keyboard
 
 
-def new_game_confirmation_keyboard(ctx):
+def new_game_confirmation_keyboard(ctx: RequestContext):
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     new_game_confirm_button = types.KeyboardButton(text=buttons.CONFIRM_BUTTON)
     back_button = get_back_button()

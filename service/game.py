@@ -1,5 +1,4 @@
 from typing import Union
-
 import service.state
 from models import Game, ServiceResponse, class_repr_converter
 from core.db_driver import db
@@ -39,7 +38,7 @@ class GameService:
             )
 
             success = True
-            response_msg = (f"New game created: {new_game_class_repr.game_name}. "
+            response_msg = (f"New game created: {new_game_class_repr.game_name}. \n"
                             f"Passcode: {new_game_class_repr.game_passcode}")
 
         except ValueError as e:

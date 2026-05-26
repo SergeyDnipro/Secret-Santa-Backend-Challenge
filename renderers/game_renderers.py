@@ -1,8 +1,9 @@
 import keyboards
 from config import states, misc
+from core.context import RequestContext
 
 
-def my_games_renderer(ctx, msg=None):
+def my_games_renderer(ctx: RequestContext, msg=None):
     state = ctx.session.get_state()
     ctx.bot.send_message(
         ctx.message.chat.id,
@@ -11,7 +12,7 @@ def my_games_renderer(ctx, msg=None):
     )
 
 
-def new_game_creating_renderer(ctx, msg=None):
+def new_game_creating_renderer(ctx: RequestContext, msg=None):
     state = ctx.session.get_state()
     ctx.bot.send_message(
         ctx.message.chat.id,
@@ -20,7 +21,7 @@ def new_game_creating_renderer(ctx, msg=None):
     )
 
 
-def new_game_created_renderer(ctx, msg=None):
+def new_game_created_renderer(ctx: RequestContext, msg=None):
     msg = msg
     state = ctx.session.get_state()
     ctx.bot.send_message(

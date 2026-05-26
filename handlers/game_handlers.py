@@ -3,10 +3,10 @@ import renderers
 from handlers import common_handlers
 from config import states, buttons, misc
 from service import state, game
-# from service.game import RequestContext
+from core.context import RequestContext
 
 
-def my_games_menu_handler(ctx):
+def my_games_menu_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
 
     if command == buttons.NEW_GAME_BUTTON.lower():
@@ -21,7 +21,7 @@ def my_games_menu_handler(ctx):
     renderer(ctx)
 
 
-def new_game_creating_handler(ctx):
+def new_game_creating_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
 
     if command == buttons.BACK_BUTTON.lower():
@@ -45,7 +45,7 @@ def new_game_creating_handler(ctx):
     renderer(ctx, msg=msg)
 
 
-def new_game_confirmation_handler(ctx: models.RequestContext):
+def new_game_confirmation_handler(ctx: RequestContext):
     max_players_qty = ctx.session.get_data(misc.MAX_PLAYERS_KEY)
     command = ctx.message.text.strip().lower()
     msg = None
@@ -55,18 +55,20 @@ def new_game_confirmation_handler(ctx: models.RequestContext):
         return
 
     elif command == buttons.CONFIRM_BUTTON.lower():
-        creator_username = ctx.message.from_user.username or ' '.join(ctx.message.from_user.first_name)
+        tg_username = ctx.message.from_user.username
+        tg_first_name = ctx.message.from_user.first_name
+        creator_username = tg_username or tg_first_name
         response = ctx.game_service.create_new_game(
             creator_id=ctx.message.from_user.id,
-            creator_username=ctx.message.from_user.username,
+            creator_username=creator_username,
             max_players_qty=max_players_qty
         )
         msg = response.message
         ctx.session.clear_state()
+        current_state = ctx.session.get_state()
     else:
+        current_state = states.NOT_VALID_INPUT
 
-
-    current_state = ctx.session.get_state()
     renderer = renderers.STATE_RENDERERS.get(current_state)
     renderer(ctx, msg=msg)
 

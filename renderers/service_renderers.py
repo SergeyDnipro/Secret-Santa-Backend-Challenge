@@ -1,8 +1,9 @@
 import keyboards
 from config import states, misc
+from core.context import RequestContext
 
 
-def my_services_renderer(ctx):
+def my_services_renderer(ctx: RequestContext, msg=None):
     state = ctx.session.get_state()
     ctx.bot.send_message(
         ctx.message.chat.id,

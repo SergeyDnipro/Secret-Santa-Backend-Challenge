@@ -33,12 +33,12 @@ class UserState:
         self.user_state_store.set(self.state_key, state)
 
 
-    def set_data(self, key, value):
-        self.user_state_store.hset(self.data_key, key, value)
-
-
     def get_data(self, key):
         return self.user_state_store.hget(self.data_key, key)
+
+
+    def set_data(self, key, value):
+        self.user_state_store.hset(self.data_key, key, value)
 
 
     def go_forward(self, new_state):
