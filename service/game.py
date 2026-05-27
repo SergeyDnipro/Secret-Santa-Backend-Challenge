@@ -24,7 +24,7 @@ class GameService:
                     raise ValueError(response_msg)
 
             new_game_response = db.new_game(
-                game_name=misc.BASE_GAME_NAME,
+                game_name=misc.BASE_GAME_NAME.lower(),
                 creator_id=creator_id,
                 creator_name=creator_username,
                 game_passcode=generate_passcode(),
@@ -47,7 +47,7 @@ class GameService:
         return ServiceResponse(success=success, message=response_msg, data=new_game_class_repr)
 
 
-    def list_user_games(self, *, creator_id: int) -> ServiceResponse:
+    def get_user_games(self, *, creator_id: int) -> ServiceResponse:
         success = False
         user_games_class_repr = None
 
@@ -65,6 +65,10 @@ class GameService:
             response_msg=str(e)
 
         return ServiceResponse(success=success, message=response_msg, data=user_games_class_repr)
+
+
+    def get_game_data(self, *, creator_id: int, game_name: str) -> ServiceResponse:
+        pass
 
 
     def draw_the_game(self, game_data: dict) -> Union[dict, str]:

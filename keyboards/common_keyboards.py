@@ -15,3 +15,11 @@ def main_menu_keyboard(ctx: RequestContext):
     keyboard.add(games_button, service_button)
 
     return keyboard
+
+
+def backward_keyboard(ctx: RequestContext):
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    back_button = get_back_button()
+    keyboard.add(back_button)
+
+    return keyboard

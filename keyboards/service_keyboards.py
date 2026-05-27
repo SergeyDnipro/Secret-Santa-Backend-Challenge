@@ -8,8 +8,8 @@ from keyboards.common_keyboards import get_back_button
 def my_service_keyboard(ctx: RequestContext):
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     get_game_data_button = types.KeyboardButton(text=buttons.GET_GAME_DATA_BUTTON)
-    list_games_button = types.KeyboardButton(text=buttons.LIST_GAMES_BUTTON)
-    keyboard.add(list_games_button, get_game_data_button)
+    get_list_of_games_button = types.KeyboardButton(text=buttons.LIST_GAMES_BUTTON)
+    keyboard.add(get_list_of_games_button, get_game_data_button)
 
     if ctx.game_service.permission.is_admin(ctx.message.from_user.id):
         purge_database_button = types.KeyboardButton(text=buttons.CLEAR_DATABASE_BUTTON)

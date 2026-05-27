@@ -4,8 +4,9 @@ from core.context import RequestContext
 
 
 def welcome_game_renderer(ctx: RequestContext, msg=None):
+    username = ctx.message.from_user.username or ctx.message.from_user.first_name
 
-    message_text = msg or f"Welcome to Secret Santa Game, {ctx.message.from_user.username}"
+    message_text = msg or f"Welcome to Secret Santa Game, {username}"
 
     state = ctx.session.get_state()
     ctx.bot.send_message(

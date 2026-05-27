@@ -14,12 +14,29 @@ def my_services_menu_handler(ctx: RequestContext):
         return
 
     elif command == buttons.LIST_GAMES_BUTTON.lower():
-        response = ctx.game_service.list_user_games(creator_id=ctx.message.from_user.id)
+        response = ctx.game_service.get_user_games(creator_id=ctx.message.from_user.id)
         response_msg = response.message
         current_state = ctx.session.get_state()
 
+    elif command == buttons.GET_GAME_DATA_BUTTON.lower():
+        current_state = ctx.session.go_forward(states.GET_GAME_DATA)
+        response_msg = f"Enter game ID:"
     else:
         current_state = states.NOT_VALID_INPUT
 
     renderer = renderers.STATE_RENDERERS.get(current_state)
     renderer(ctx, msg=response_msg)
+
+
+def get_game_data_handler(ctx: RequestContext):
+    command = ctx.message.text.strip().lower()
+    response_msg = None
+
+    if command == buttons.BACK_BUTTON.lower():
+        common_handlers.fallback_handler(ctx)
+        return
+
+    response = ctx.game_service.get_game_data(
+        creator_id=ctx.message.from_user.id,
+        game_name=ctx.message.text.strip().lower(),
+    )

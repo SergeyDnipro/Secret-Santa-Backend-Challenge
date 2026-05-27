@@ -8,4 +8,5 @@ handlers_mapping = {
     states.NEW_GAME_STARTS: game_handlers.new_game_creating_handler,
     states.NEW_GAME_CREATED: game_handlers.new_game_confirmation_handler,
     states.SERVICE_MENU: service_handlers.my_services_menu_handler,
+    states.GET_GAME_DATA: service_handlers.get_game_data_handler,
 }
