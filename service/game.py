@@ -79,13 +79,17 @@ class GameService:
                 data=game_response,
                 many=False,
             )
-            print(game_class_repr)
-            if creator_id == game_class_repr.creator_telegram_id:
+
+            if (isinstance(game_class_repr, Game)
+                    and (creator_id == game_class_repr.creator_telegram_id or self.permission.is_admin(creator_id))
+            ):
                 response_msg = serialize_game(game_class_repr)
                 success = True
+
             else:
-                response_msg = f"You are not owner of '{game_class_repr.game_name}'"
+                response_msg = "No game found or you don't have access to game data."
                 game_class_repr = None
+
 
         except ValueError as e:
             response_msg=str(e)

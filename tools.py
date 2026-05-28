@@ -38,8 +38,6 @@ def serialize_game_list(game_list: List[Game]) -> str:
 def serialize_game(game_result: Game):
     """ Create output string to display extended info for game """
 
-    if not game_result:
-        return "No game found"
 
     game_data = game_result["game"]
     players_data = game_result["players"]
