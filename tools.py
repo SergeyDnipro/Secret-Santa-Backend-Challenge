@@ -7,6 +7,9 @@ from models import Game
 def serialize_game_list(game_list: List[Game]) -> str:
     """ Create output string for displaying the list of games in Telegram """
 
+    if not game_list:
+        return "No games found"
+
     final_row = ""
     for game_data in game_list:
         if not game_data.game_locked and not game_data.game_completed:
@@ -29,17 +32,14 @@ def serialize_game_list(game_list: List[Game]) -> str:
             f"Status: {game_status}\n\n"
         )
 
-    if not game_list:
-        final_row = "No games found"
-
     return final_row
 
 
-def serialize_game(game_result: Union[dict, str]):
+def serialize_game(game_result: Game):
     """ Create output string to display extended info for game """
 
-    if isinstance(game_result, str):
-        return game_result
+    if not game_result:
+        return "No game found"
 
     game_data = game_result["game"]
     players_data = game_result["players"]

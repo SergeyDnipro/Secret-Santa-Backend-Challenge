@@ -16,3 +16,9 @@ def my_services_renderer(ctx: RequestContext, msg=None):
 
 def get_game_data_renderer(ctx: RequestContext, msg=None):
     state = ctx.session.get_state()
+    msg = msg or f"Enter game ID to view extended details"
+    ctx.bot.send_message(
+        ctx.message.chat.id,
+        msg,
+        reply_markup=keyboards.STATE_KEYBOARDS.get(state)(ctx)
+    )

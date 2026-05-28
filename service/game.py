@@ -52,14 +52,15 @@ class GameService:
         user_games_class_repr = None
 
         try:
-            user_games_queryset = db.get_games_by_creator(creator_id=creator_id)
+            user_games_response = db.get_games_by_creator(creator_id=creator_id)
 
             user_games_class_repr = class_repr_converter(
                 cls=Game,
-                data=user_games_queryset
+                data=user_games_response
             )
 
             response_msg = serialize_game_list(user_games_class_repr)
+            success = True
 
         except ValueError as e:
             response_msg=str(e)
@@ -68,7 +69,28 @@ class GameService:
 
 
     def get_game_data(self, *, creator_id: int, game_name: str) -> ServiceResponse:
-        pass
+        success = False
+        game_class_repr = None
+
+        try:
+            game_response = db.get_game(game_name=game_name)
+            game_class_repr = class_repr_converter(
+                cls=Game,
+                data=game_response,
+                many=False,
+            )
+            print(game_class_repr)
+            if creator_id == game_class_repr.creator_telegram_id:
+                response_msg = serialize_game(game_class_repr)
+                success = True
+            else:
+                response_msg = f"You are not owner of '{game_class_repr.game_name}'"
+                game_class_repr = None
+
+        except ValueError as e:
+            response_msg=str(e)
+
+        return ServiceResponse(success=success, message=response_msg, data=game_class_repr)
 
 
     def draw_the_game(self, game_data: dict) -> Union[dict, str]:

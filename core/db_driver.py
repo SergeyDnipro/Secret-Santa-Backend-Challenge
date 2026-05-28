@@ -162,26 +162,22 @@ class SQLiteDatabaseConnection:
     def get_game(self, game_name: str) -> dict:
         """ Get game data """
         query = """
-        SELECT
-            games.id,
-            games.created_at,
-            games.game_name,
-            games.game_locked,
-            games.game_completed
+        SELECT games.*
         FROM games
         WHERE game_name = :game_name;
         """
 
         result = self.execute_query(query, {"game_name": game_name})
 
-        if not result:
-            return {"status": False, "message": f"Game: {game_name} not found", "result": None}
-        elif result[0][5]:
-            return {"status": False, "message": f"Game: {game_name} already locked", "result": result[0]}
-        elif result[0][6]:
-            return {"status": False, "message": f"Game: {game_name} already completed", "result": result[0]}
-
-        return {"status": True, "message": "Successful", "result": result[0]}
+        return result
+        # if not result:
+        #     return {"status": False, "message": f"Game: {game_name} not found", "result": None}
+        # elif result[0][5]:
+        #     return {"status": False, "message": f"Game: {game_name} already locked", "result": result[0]}
+        # elif result[0][6]:
+        #     return {"status": False, "message": f"Game: {game_name} already completed", "result": result[0]}
+        #
+        # return {"status": True, "message": "Successful", "result": result[0]}
 
 
     def get_players_by_game_name(self, game_name: str) -> Union[dict, str]:

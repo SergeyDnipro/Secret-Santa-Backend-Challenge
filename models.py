@@ -1,9 +1,12 @@
 from dataclasses import dataclass, fields
 from datetime import datetime
-from typing import Any
+from symtable import Class
+from typing import Any, TypeVar, Type, Union
+
+T = TypeVar('T')
 
 
-def class_repr_converter(cls, data, temp_data=None, many=True):
+def class_repr_converter(cls: Type[T], data, temp_data=None, many=True) -> Union[T, list[T]]:
     """ Convert data to dataclass objects. """
 
     result_list = temp_data if temp_data is not None else []

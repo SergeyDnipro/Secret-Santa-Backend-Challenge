@@ -14,7 +14,9 @@ def my_services_menu_handler(ctx: RequestContext):
         return
 
     elif command == buttons.LIST_GAMES_BUTTON.lower():
-        response = ctx.game_service.get_user_games(creator_id=ctx.message.from_user.id)
+        response = ctx.game_service.get_user_games(
+            creator_id=ctx.message.from_user.id
+        )
         response_msg = response.message
         current_state = ctx.session.get_state()
 
@@ -40,3 +42,11 @@ def get_game_data_handler(ctx: RequestContext):
         creator_id=ctx.message.from_user.id,
         game_name=ctx.message.text.strip().lower(),
     )
+    response_msg = response.message
+
+    if response.success:
+        ctx.session.go_back()
+
+    current_state = ctx.session.get_state()
+    renderer = renderers.STATE_RENDERERS.get(current_state)
+    renderer(ctx, msg=response_msg)
