@@ -1,7 +1,7 @@
 import secrets
 import string
 from typing import List, Tuple, Union
-from models import Game
+from models import Game, Player
 
 
 def serialize_game_list(game_list: List[Game]) -> str:
@@ -35,27 +35,31 @@ def serialize_game_list(game_list: List[Game]) -> str:
     return final_row
 
 
-def serialize_game(game_result: Game):
+def serialize_game_data(*, game: Game, players: List[Player]):
     """ Create output string to display extended info for game """
 
-
-    game_data = game_result["game"]
-    players_data = game_result["players"]
-    locked = "Yes" if game_data[3] else "No"
-    completed = "Yes" if game_data[4] else "No"
+    game_name = game.game_name
+    game_date = game.created_at.strftime("%B %d, %Y")
+    game_passcode = game.game_passcode
+    locked = "Yes" if game.game_locked else "No"
+    completed = "Yes" if game.game_completed else "No"
 
     msg = (
-        f"Game: {game_data[2]}\n\n"
-        f"Created: {game_data[1]}\n"
+        f"Game ID: {game_name}\n\n"
+        f"Passcode: {game_passcode}\n" 
+        f"Created: {game_date}\n"
         f"Locked: {locked}\n"
         f"Completed: {completed}\n\n"
         f"Players:\n"
     )
 
-    for number, player in enumerate(players_data, start=1):
+    if players:
+        for number, player in enumerate(players, start=1):
 
-        receiver = player[3] if player[3] else "None"
-        msg += f"{number}. {player[1]} -> giver to: {receiver}\n"
+            receiver = player.player_receiver or "None"
+            msg += f"{number}. {player.player_name} -> giver to: {receiver}\n"
+    else:
+        msg += "No players in the game yet"
 
     return msg
 

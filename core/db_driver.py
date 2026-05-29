@@ -183,17 +183,12 @@ class SQLiteDatabaseConnection:
     def get_players_by_game_name(self, game_name: str) -> Union[dict, str]:
         """ Get all game data, including players """
 
-        game = self.get_game(game_name)
-        if not game["result"]:
-            return game["message"]
+        # game = self.get_game(game_name)
+        # if not game["result"]:
+        #     return game["message"]
 
         query = """
-        SELECT 
-            players.player_id, 
-            players.player_name,
-            players.player_giver,
-            players.player_receiver,
-            players.player_telegram_id
+        SELECT players.* 
         FROM players
         LEFT JOIN games ON players.game_id = games.id
         WHERE games.game_name = :game_name
@@ -201,9 +196,10 @@ class SQLiteDatabaseConnection:
         """
 
         get_params = {"game_name": game_name}
-        players_list = self.execute_query(query, get_params)
+        result = self.execute_query(query, get_params)
 
-        return {"game": game["result"], "players": players_list}
+        return result
+        # return {"game": game["result"], "players": players_list}
 
 
     def lock_game_by_name(self, game_name: str) -> str:
