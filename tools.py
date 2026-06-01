@@ -1,7 +1,7 @@
 import secrets
 import string
 from typing import List, Tuple, Union
-from models import Game
+from models import Game, Player
 
 
 def serialize_game_list(game_list: List[Game]) -> str:
@@ -23,39 +23,40 @@ def serialize_game_list(game_list: List[Game]) -> str:
         game_name = game_data.game_name
         game_passcode = game_data.game_passcode
         players_qty = game_data.players_count
+        max_players_qty = game_data.max_players_qty
 
         final_row += (
             f"Date: {game_date}\n"
             f"ID: {game_name} | "
             f"Passcode: {game_passcode}\n"
-            f"Players: {players_qty} | "
+            f"Players: {players_qty}/{max_players_qty} | "
             f"Status: {game_status}\n\n"
         )
 
     return final_row
 
 
-def serialize_game(game_result: Game):
+def serialize_game(game_data: Game, players: List[Player]) -> Union[dict, str]:
     """ Create output string to display extended info for game """
 
-
-    game_data = game_result["game"]
-    players_data = game_result["players"]
-    locked = "Yes" if game_data[3] else "No"
-    completed = "Yes" if game_data[4] else "No"
+    locked = "Yes" if game_data.game_locked else "No"
+    completed = "Yes" if game_data.game_completed else "No"
+    game_date = game_data.created_at.strftime("%B %d, %Y")
 
     msg = (
-        f"Game: {game_data[2]}\n\n"
-        f"Created: {game_data[1]}\n"
+        f"ID: {game_data.game_name}\n\n"
+        f"Created: {game_date}\n"
         f"Locked: {locked}\n"
-        f"Completed: {completed}\n\n"
+        f"Completed: {completed}\n"
+        f"Total players: {game_data.players_count}\n"
+        f"Max players: {game_data.max_players_qty}\n\n"
         f"Players:\n"
     )
 
-    for number, player in enumerate(players_data, start=1):
+    for number, player in enumerate(players, start=1):
 
-        receiver = player[3] if player[3] else "None"
-        msg += f"{number}. {player[1]} -> giver to: {receiver}\n"
+        receiver = player.player_receiver or "None"
+        msg += f"{number}. {player.player_name} -> giver to: {receiver}\n"
 
     return msg
 

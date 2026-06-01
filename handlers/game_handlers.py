@@ -10,6 +10,8 @@ def my_games_menu_handler(ctx: RequestContext):
 
     if command == buttons.NEW_GAME_BUTTON.lower():
         new_state = ctx.session.go_forward(states.NEW_GAME_STARTS)
+    elif command == buttons.JOIN_GAME_BUTTON.lower():
+        new_state = ctx.session.go_forward(states.JOIN_GAME_NAME)
     elif command == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
         return
@@ -71,6 +73,26 @@ def new_game_confirmation_handler(ctx: RequestContext):
     renderer = renderers.STATE_RENDERERS.get(current_state)
     renderer(ctx, msg=response_msg)
 
+
+def join_game_handler(ctx: RequestContext):
+    command = ctx.message.text.strip().lower()
+
+    if command == buttons.BACK_BUTTON.lower():
+        common_handlers.fallback_handler(ctx)
+        return
+
+    ctx.session.set_data(misc.GAME_NAME_KEY, command)
+    new_state = ctx.session.go_forward(states.JOIN_GAME_NAME)
+
+
+def join_game_passcode_handler(ctx: RequestContext):
+    command = ctx.message.text.strip().lower()
+
+    if command == buttons.BACK_BUTTON.lower():
+        common_handlers.fallback_handler(ctx)
+        return
+
+    ctx.session.set_data(misc.GAME_NAME_KEY, command)
 
 def incorrect_input_handler(bot, message, session: state.UserState):
     pass

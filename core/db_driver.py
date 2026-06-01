@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+from core.db_tools import transactional
 from typing import List, Union
 from dataclasses import dataclass, fields
 
@@ -9,34 +10,27 @@ class SQLiteDatabaseConnection:
         self.database_name = database_name
         self.create_check_table()
 
-
-    def execute_query(self, query: str, params=None, many=False, fetchone_result=False):
+    @staticmethod
+    def execute_query(*, conn: sqlite3.Connection, query: str, params=None, many=False, fetchone_result=False):
         """Execute the SQL query with optional parameters and return results if available."""
-        try:
-            with sqlite3.connect(self.database_name) as db_conn:
-                db_conn.execute("PRAGMA foreign_keys = ON;")
-                db_conn.row_factory = sqlite3.Row
-                cursor = db_conn.cursor()
-                if many:
-                    cursor.executemany(query, params)
-                elif params is not None:
-                    cursor.execute(query, params)
-                else:
-                    cursor.execute(query)
-                db_conn.commit()
+        cursor = conn.cursor()
+        if many:
+            cursor.executemany(query, params)
+        elif params is not None:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        conn.commit()
 
-                if cursor.description:
-                    if fetchone_result:
-                        return cursor.fetchone()
-                    return cursor.fetchall()
-                return cursor.lastrowid
-
-        except sqlite3.DatabaseError as e:
-            # logger.error(e)
-            raise
+        if cursor.description:
+            if fetchone_result:
+                return cursor.fetchone()
+            return cursor.fetchall()
+        return cursor.lastrowid
 
 
-    def create_check_table(self):
+    @transactional
+    def create_check_table(self, *, conn: sqlite3.Connection):
         """Create the games and players tables if it does not exist."""
 
         query = """
@@ -53,7 +47,7 @@ class SQLiteDatabaseConnection:
             max_players_qty INTEGER DEFAULT 10
          );
         """
-        self.execute_query(query)
+        self.execute_query(conn=conn, query=query)
 
         query = """
         CREATE TABLE IF NOT EXISTS players (
@@ -69,7 +63,7 @@ class SQLiteDatabaseConnection:
             UNIQUE (game_id, player_telegram_id)
          );
         """
-        self.execute_query(query)
+        self.execute_query(conn=conn, query=query)
 
 
     def delete_all_records(self):
@@ -82,6 +76,7 @@ class SQLiteDatabaseConnection:
         return "DB cleared"
 
 
+    @transactional
     def new_game(
             self,
             *,
@@ -90,6 +85,7 @@ class SQLiteDatabaseConnection:
             creator_name: str,
             game_passcode: str,
             max_players_qty: int,
+            conn: sqlite3.Connection,
     ):
         """ Create the new game and return its name_id to telegram """
 
@@ -106,7 +102,7 @@ class SQLiteDatabaseConnection:
             "max_players_qty": max_players_qty,
         }
 
-        game_id = self.execute_query(query, params=params)
+        game_id = self.execute_query(conn=conn, query=query, params=params)
 
         # Update record (with following 'game_id') with 'new_game_name'
         new_game_name = f"{game_name}_{game_id}"
@@ -117,13 +113,13 @@ class SQLiteDatabaseConnection:
         """
 
         update_params = {"new_game_name": new_game_name, "game_id": game_id}
-        self.execute_query(update_query, params=update_params, fetchone_result=True)
+        self.execute_query(conn=conn, query=update_query, params=update_params, fetchone_result=True)
 
         get_new_game_query = """
         SELECT games.* FROM games
         WHERE id = :game_id;
         """
-        new_game_instance = self.execute_query(get_new_game_query, params={"game_id": game_id})
+        new_game_instance = self.execute_query(conn=conn, query=get_new_game_query, params={"game_id": game_id})
 
         return new_game_instance
 
@@ -142,7 +138,8 @@ class SQLiteDatabaseConnection:
         return result
 
 
-    def get_games_by_creator(self, creator_id: int) -> List[tuple]:
+    @transactional
+    def get_games_by_creator(self, creator_id: int, conn: sqlite3.Connection) -> List[tuple]:
         """ Get all games in DB, including qty of players in every game (for requested creator ID) """
 
         query = """
@@ -155,11 +152,12 @@ class SQLiteDatabaseConnection:
 
         params = {"creator_id": creator_id}
 
-        result = self.execute_query(query, params)
+        result = self.execute_query(conn=conn, query=query, params=params)
         return result
 
 
-    def get_game(self, game_name: str) -> dict:
+    @transactional
+    def get_game(self, game_name: str, conn: sqlite3.Connection) -> dict:
         """ Get game data """
         query = """
         SELECT games.*
@@ -167,33 +165,20 @@ class SQLiteDatabaseConnection:
         WHERE game_name = :game_name;
         """
 
-        result = self.execute_query(query, {"game_name": game_name})
+        params = {"game_name": game_name}
+
+        result = self.execute_query(conn=conn, query=query, params=params)
 
         return result
-        # if not result:
-        #     return {"status": False, "message": f"Game: {game_name} not found", "result": None}
-        # elif result[0][5]:
-        #     return {"status": False, "message": f"Game: {game_name} already locked", "result": result[0]}
-        # elif result[0][6]:
-        #     return {"status": False, "message": f"Game: {game_name} already completed", "result": result[0]}
-        #
-        # return {"status": True, "message": "Successful", "result": result[0]}
 
 
-    def get_players_by_game_name(self, game_name: str) -> Union[dict, str]:
-        """ Get all game data, including players """
+    @transactional
+    def get_players_by_game_name(self, game_name: str, conn: sqlite3.Connection) -> Union[dict, str]:
+        """ Get players data regarding game name """
 
-        game = self.get_game(game_name)
-        if not game["result"]:
-            return game["message"]
 
         query = """
-        SELECT 
-            players.player_id, 
-            players.player_name,
-            players.player_giver,
-            players.player_receiver,
-            players.player_telegram_id
+        SELECT players.*
         FROM players
         LEFT JOIN games ON players.game_id = games.id
         WHERE games.game_name = :game_name
@@ -201,9 +186,10 @@ class SQLiteDatabaseConnection:
         """
 
         get_params = {"game_name": game_name}
-        players_list = self.execute_query(query, get_params)
+        players_list = self.execute_query(conn=conn, query=query, params=get_params)
 
-        return {"game": game["result"], "players": players_list}
+        return players_list
+        # return {"game": game["result"], "players": players_list}
 
 
     def lock_game_by_name(self, game_name: str) -> str:

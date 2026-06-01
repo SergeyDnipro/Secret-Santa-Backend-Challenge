@@ -1,6 +1,6 @@
 from typing import Union
 import service.state
-from models import Game, ServiceResponse, class_repr_converter
+from models import Game, ServiceResponse, class_repr_converter, Player
 from core.db_driver import db
 from config import misc
 from tools import generate_passcode, serialize_game_list, serialize_game
@@ -80,10 +80,19 @@ class GameService:
                 many=False,
             )
 
+            players_response = db.get_players_by_game_name(game_name=game_name)
+            players_class_repr = class_repr_converter(
+                cls=Player,
+                data=players_response,
+            )
+
             if (isinstance(game_class_repr, Game)
                     and (creator_id == game_class_repr.creator_telegram_id or self.permission.is_admin(creator_id))
             ):
-                response_msg = serialize_game(game_class_repr)
+                response_msg = serialize_game(
+                    game_data=game_class_repr,
+                    players=players_class_repr,
+                )
                 success = True
 
             else:

@@ -49,6 +49,7 @@ class Game:
     game_locked: int
     game_completed: int
     players_count: int
+    max_players_qty: int
 
 
 @dataclass
