@@ -141,7 +141,7 @@ def get_game_data(message):
     """ Handle 'game info' button """
 
     result = db.get_players_by_game_name(message.text)
-    output_msg = serialize_game(result)
+    output_msg = serialize_game_data(result)
     bot.send_message(
         message.chat.id,
         output_msg,
@@ -213,3 +213,6 @@ if __name__ == '__main__':
     ).start()
 
     bot.infinity_polling()
+
+
+#TODO: Logger configuration
