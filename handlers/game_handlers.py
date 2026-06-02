@@ -7,11 +7,13 @@ from core.context import RequestContext
 
 def my_games_menu_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
+    msg = None
 
     if command == buttons.NEW_GAME_BUTTON.lower():
         new_state = ctx.session.go_forward(states.NEW_GAME_STARTS)
     elif command == buttons.JOIN_GAME_BUTTON.lower():
-        new_state = ctx.session.go_forward(states.JOIN_GAME_NAME)
+        new_state = ctx.session.go_forward(states.JOIN_GAME_START)
+        msg = f"Enter game name: "
     elif command == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
         return
@@ -19,7 +21,7 @@ def my_games_menu_handler(ctx: RequestContext):
         new_state = states.NOT_VALID_INPUT
 
     renderer = renderers.STATE_RENDERERS.get(new_state)
-    renderer(ctx)
+    renderer(ctx, msg=msg)
 
 
 def new_game_creating_handler(ctx: RequestContext):
@@ -82,7 +84,9 @@ def join_game_handler(ctx: RequestContext):
         return
 
     ctx.session.set_data(misc.GAME_NAME_KEY, command)
-    new_state = ctx.session.go_forward(states.JOIN_GAME_NAME)
+    new_state = ctx.session.go_forward(states.JOIN_GAME_START)
+    msg = f"Enter passcode: "
+
 
 
 def join_game_passcode_handler(ctx: RequestContext):
