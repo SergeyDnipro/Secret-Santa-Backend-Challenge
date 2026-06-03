@@ -10,4 +10,6 @@ STATE_RENDERERS = {
     states.NEW_GAME_CREATED: game_renderers.new_game_created_renderer,
     states.SERVICE_MENU: service_renderers.my_services_renderer,
     states.GET_GAME_DATA: service_renderers.get_game_data_renderer,
+    states.JOIN_GAME_START: game_renderers.new_game_created_renderer,
+    states.JOIN_GAME_CHECK: game_renderers.new_game_created_renderer,
 }

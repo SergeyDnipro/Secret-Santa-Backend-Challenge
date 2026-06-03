@@ -9,4 +9,6 @@ STATE_KEYBOARDS = {
     states.NEW_GAME_CREATED: game_keyboards.new_game_confirmation_keyboard,
     states.SERVICE_MENU: service_keyboards.my_service_keyboard,
     states.GET_GAME_DATA: common_keyboards.backward_keyboard,
+    states.JOIN_GAME_START: common_keyboards.backward_keyboard,
+    states.JOIN_GAME_CHECK: common_keyboards.backward_keyboard,
 }
