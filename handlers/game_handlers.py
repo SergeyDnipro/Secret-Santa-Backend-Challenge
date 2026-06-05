@@ -99,7 +99,8 @@ def join_game_check_handler(ctx: RequestContext):
         return
 
     ctx.session.set_data(misc.GAME_PASSWORD_KEY, command)
-    msg = f"game joined with name: {ctx.session.get_data(misc.GAME_NAME_KEY)}, passcode: {ctx.session.get_data(misc.GAME_PASSWORD_KEY)}"
+    # msg = f"game joined with name: {ctx.session.get_data(misc.GAME_NAME_KEY)}, passcode: {ctx.session.get_data(misc.GAME_PASSWORD_KEY)}"
+    responce = ctx.
 
     ctx.session.clear_state()
     current_state = ctx.session.get_state()

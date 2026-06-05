@@ -157,7 +157,23 @@ class SQLiteDatabaseConnection:
 
 
     @transactional
-    def get_game(self, game_name: str, conn: sqlite3.Connection) -> dict:
+    def get_game_by_passcode(self, game_name: str, game_passcode: str, conn: sqlite3.Connection):
+        """ Get game data by game name and passcode """
+        query = """
+        SELECT games.*
+        FROM games
+        WHERE game_name = :game_name AND game_passcode = :game_passcode;
+        """
+
+        params = {"game_name": game_name, "game_passcode": game_passcode}
+
+        result = self.execute_query(conn=conn, query=query, params=params)
+
+        return result
+
+
+    @transactional
+    def get_game(self, game_name: str, conn: sqlite3.Connection) -> Union[dict, None]:
         """ Get game data """
         query = """
         SELECT games.*
@@ -173,7 +189,7 @@ class SQLiteDatabaseConnection:
 
 
     @transactional
-    def get_players_by_game_name(self, game_name: str, conn: sqlite3.Connection) -> Union[dict, str]:
+    def get_players_by_game_name(self, game_name: str, conn: sqlite3.Connection) -> Union[dict, None]:
         """ Get players data regarding game name """
 
 
