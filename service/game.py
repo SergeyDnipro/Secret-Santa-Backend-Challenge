@@ -4,6 +4,7 @@ from models import Game, ServiceResponse, class_repr_converter, Player
 from core.db_driver import db
 from config import misc
 from tools import generate_passcode, serialize_game_list, serialize_game
+from exceptions import game_exceptions
 
 
 class GameService:
@@ -45,6 +46,31 @@ class GameService:
             response_msg=str(e)
 
         return ServiceResponse(success=success, message=response_msg, data=new_game_class_repr)
+
+
+    def join_game(self, *, game_name: str, game_passcode: str, player_name: str, player_telegram_id: int) -> ServiceResponse:
+
+        try:
+            game_instance = db.get_game_by_passcode(game_name=game_name, game_passcode=game_passcode)
+            game_instance_class_repr = class_repr_converter(
+                cls=Game,
+                data=game_instance,
+                many=False,
+            )
+
+            if not game_instance:
+                raise game_exceptions.GameNotFoundError()
+
+            if game_instance_class_repr.game_locked:
+                raise game_exceptions.GameLockedError()
+
+            game_id = game_instance_class_repr.id
+
+        except game_exceptions.GameAppException as exc:
+            message = str(exc)
+
+
+        return ServiceResponse(success=True, message=message, data=game_instance_class_repr)")
 
 
     def get_user_games(self, *, creator_id: int) -> ServiceResponse:

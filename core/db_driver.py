@@ -3,6 +3,7 @@ from datetime import datetime
 from core.db_tools import transactional
 from typing import List, Union
 from dataclasses import dataclass, fields
+from exceptions.game_exceptions import PlayerAlreadyJoinedError, GameFullError
 
 
 class SQLiteDatabaseConnection:
@@ -226,6 +227,9 @@ class SQLiteDatabaseConnection:
         self.execute_query(query, update_params)
 
         return f"Game: {game_name} has been locked"
+
+
+
 
 
     def join_game_by_name(self, game_name: str, player_name: str, player_telegram_id: int) -> str:

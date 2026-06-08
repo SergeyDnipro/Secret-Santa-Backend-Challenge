@@ -12,15 +12,6 @@ from service import game, notification, export, state, permission
 from handlers import common_handlers, handlers_mapping
 
 
-def build_context(*, message, session):
-    return RequestContext(
-        bot=bot,
-        message=message,
-        session=session,
-        game_service=game_service
-    )
-
-
 BASE_DIR = os.path.dirname(__file__) # project/
 ENV_PATH = os.path.join(BASE_DIR, "config", ".env")
 
@@ -35,6 +26,15 @@ bot = telebot.TeleBot(TOKEN)
 game_service = game.GameService(
     permission=permission.PermissionService(admin_ids=ADMIN_IDS)
 )
+
+
+def build_context(*, message, session):
+    return RequestContext(
+        bot=bot,
+        message=message,
+        session=session,
+        game_service=game_service
+    )
 
 
 @bot.message_handler(commands=['start'])
