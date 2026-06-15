@@ -5,6 +5,7 @@ from core.db_driver import db
 from config import misc
 from tools import generate_passcode, serialize_game_list, serialize_game
 from exceptions import game_exceptions
+from config import message_templates
 
 
 class GameService:
@@ -65,12 +66,17 @@ class GameService:
                 raise game_exceptions.GameLockedError()
 
             game_id = game_instance_class_repr.id
+            db.join_game_by_player(
+                game_id=game_id,
+                player_name=player_name,
+                player_telegram_id=player_telegram_id,
+            )
+            message = message_templates.JOIN_GAME_SUCCESS(game_name=game_name)
 
         except game_exceptions.GameAppException as exc:
             message = str(exc)
 
-
-        return ServiceResponse(success=True, message=message, data=game_instance_class_repr)")
+        return ServiceResponse(success=True, message=message, data=None)
 
 
     def get_user_games(self, *, creator_id: int) -> ServiceResponse:

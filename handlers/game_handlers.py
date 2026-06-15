@@ -77,9 +77,9 @@ def new_game_confirmation_handler(ctx: RequestContext):
 
 
 def join_game_handler(ctx: RequestContext):
-    command = ctx.message.text.strip().lower()
+    command = ctx.message.text.strip()
 
-    if command == buttons.BACK_BUTTON.lower():
+    if command.lower() == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
         return
 
@@ -92,16 +92,28 @@ def join_game_handler(ctx: RequestContext):
 
 
 def join_game_check_handler(ctx: RequestContext):
-    command = ctx.message.text.strip().lower()
+    command = ctx.message.text.strip()
 
-    if command == buttons.BACK_BUTTON.lower():
+    if command.lower() == buttons.BACK_BUTTON.lower():
         common_handlers.fallback_handler(ctx)
         return
 
     ctx.session.set_data(misc.GAME_PASSWORD_KEY, command)
     # msg = f"game joined with name: {ctx.session.get_data(misc.GAME_NAME_KEY)}, passcode: {ctx.session.get_data(misc.GAME_PASSWORD_KEY)}"
-    responce = ctx.
 
+    game_name = ctx.session.get_data(misc.GAME_NAME_KEY)
+    game_password = ctx.session.get_data(misc.GAME_PASSWORD_KEY)
+    player_name = ctx.message.from_user.first_name + ctx.message.from_user.last_name
+    player_id = ctx.message.from_user.id
+
+    response = ctx.game_service.join_game(
+        game_name=game_name,
+        game_passcode=game_password,
+        player_name=player_name,
+        player_telegram_id=player_id,
+    )
+
+    msg = response.message
     ctx.session.clear_state()
     current_state = ctx.session.get_state()
     renderer = renderers.STATE_RENDERERS.get(current_state)

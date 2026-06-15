@@ -4,6 +4,7 @@ from core.db_tools import transactional
 from typing import List, Union
 from dataclasses import dataclass, fields
 from exceptions.game_exceptions import PlayerAlreadyJoinedError, GameFullError
+from models import ServiceResponse
 
 
 class SQLiteDatabaseConnection:
@@ -12,7 +13,15 @@ class SQLiteDatabaseConnection:
         self.create_check_table()
 
     @staticmethod
-    def execute_query(*, conn: sqlite3.Connection, query: str, params=None, many=False, fetchone_result=False):
+    def execute_query(
+            *,
+            conn: sqlite3.Connection,
+            query: str,
+            params=None,
+            many=False,
+            fetchone_result=False,
+            insert_query=False,
+    ):
         """Execute the SQL query with optional parameters and return results if available."""
         cursor = conn.cursor()
         if many:
@@ -21,13 +30,15 @@ class SQLiteDatabaseConnection:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-        conn.commit()
+
+        if insert_query:
+            return cursor.lastrowid
 
         if cursor.description:
             if fetchone_result:
                 return cursor.fetchone()
             return cursor.fetchall()
-        return cursor.lastrowid
+        return cursor.rowcount
 
 
     @transactional
@@ -95,7 +106,7 @@ class SQLiteDatabaseConnection:
         VALUES (:game_name, :creator_telegram_id, :creator_name, :game_passcode, :max_players_qty);
         """
 
-        params = {
+        new_game_params = {
             "game_name": game_name,
             "creator_telegram_id": creator_id,
             "creator_name": creator_name,
@@ -103,7 +114,7 @@ class SQLiteDatabaseConnection:
             "max_players_qty": max_players_qty,
         }
 
-        game_id = self.execute_query(conn=conn, query=query, params=params)
+        game_id = self.execute_query(conn=conn, query=query, params=new_game_params)
 
         # Update record (with following 'game_id') with 'new_game_name'
         new_game_name = f"{game_name}_{game_id}"
@@ -123,6 +134,51 @@ class SQLiteDatabaseConnection:
         new_game_instance = self.execute_query(conn=conn, query=get_new_game_query, params={"game_id": game_id})
 
         return new_game_instance
+
+
+    @transactional
+    def join_game_by_player(
+            self,
+            *,
+            game_id: int,
+            player_name: str,
+            player_telegram_id: int,
+            conn: sqlite3.Connection
+    ):
+        """ Join game """
+        query = """
+        UPDATE games
+        SET players_count = players_count + 1
+        WHERE id = :game_id AND players_count < max_players_qty;
+        """
+
+        update_game_params = {
+            "game_id": game_id,
+        }
+
+        result = self.execute_query(conn=conn, query=query, params=update_game_params)
+
+        if not result:
+            raise GameFullError()
+
+        try:
+
+            insert_query = """
+                           INSERT INTO players (game_id, player_name, player_telegram_id)
+                           VALUES (:game_id, :player_name, :player_telegram_id);
+                           """
+
+            insert_params = {
+                "game_id": game_id,
+                "player_name": player_name,
+                "player_telegram_id": player_telegram_id,
+            }
+
+            result = self.execute_query(conn=conn, query=insert_query, params=insert_params)
+            return result
+
+        except sqlite3.IntegrityError:
+            raise PlayerAlreadyJoinedError()
 
 
     def get_all_games(self) -> List[tuple]:
@@ -154,6 +210,7 @@ class SQLiteDatabaseConnection:
         params = {"creator_id": creator_id}
 
         result = self.execute_query(conn=conn, query=query, params=params)
+
         return result
 
 
