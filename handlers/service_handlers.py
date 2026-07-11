@@ -10,7 +10,7 @@ def my_services_menu_handler(ctx: RequestContext):
     response_msg = None
 
     if command == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        common_handlers.backward_handler(ctx)
         return
 
     elif command == buttons.LIST_GAMES_BUTTON.lower():
@@ -35,7 +35,7 @@ def get_game_data_handler(ctx: RequestContext):
     response_msg = None
 
     if command == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        common_handlers.backward_handler(ctx)
         return
 
     response = ctx.game_service.get_game_data(

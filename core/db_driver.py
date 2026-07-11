@@ -114,7 +114,7 @@ class SQLiteDatabaseConnection:
             "max_players_qty": max_players_qty,
         }
 
-        game_id = self.execute_query(conn=conn, query=query, params=new_game_params)
+        game_id = self.execute_query(conn=conn, query=query, params=new_game_params, insert_query=True)
 
         # Update record (with following 'game_id') with 'new_game_name'
         new_game_name = f"{game_name}_{game_id}"
@@ -174,7 +174,7 @@ class SQLiteDatabaseConnection:
                 "player_telegram_id": player_telegram_id,
             }
 
-            result = self.execute_query(conn=conn, query=insert_query, params=insert_params)
+            result = self.execute_query(conn=conn, query=insert_query, params=insert_params, insert_query=True)
             return result
 
         except sqlite3.IntegrityError:

@@ -1,4 +1,5 @@
 import renderers
+import handlers
 from handlers import common_handlers
 from config import states, buttons, misc
 from service import state
@@ -15,7 +16,7 @@ def my_games_menu_handler(ctx: RequestContext):
         new_state = ctx.session.go_forward(states.JOIN_GAME_START)
         msg = f"Enter game name: "
     elif command == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        handlers.backward_handler(ctx)
         return
     else:
         new_state = states.NOT_VALID_INPUT
@@ -28,7 +29,8 @@ def new_game_creating_handler(ctx: RequestContext):
     command = ctx.message.text.strip().lower()
 
     if command == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        print(ctx.session.get_states())
+        handlers.backward_handler(ctx)
         return
 
     try:
@@ -54,13 +56,15 @@ def new_game_confirmation_handler(ctx: RequestContext):
     response_msg = None
 
     if command == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        handlers.backward_handler(ctx)
         return
 
     elif command == buttons.CONFIRM_BUTTON.lower():
         tg_username = ctx.message.from_user.username
         tg_first_name = ctx.message.from_user.first_name
         creator_username = tg_username or tg_first_name
+        print(creator_username)
+
         response = ctx.game_service.create_new_game(
             creator_id=ctx.message.from_user.id,
             creator_username=creator_username,
@@ -80,7 +84,7 @@ def join_game_handler(ctx: RequestContext):
     command = ctx.message.text.strip()
 
     if command.lower() == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        handlers.backward_handler(ctx)
         return
 
     ctx.session.set_data(misc.GAME_NAME_KEY, command)
@@ -95,7 +99,7 @@ def join_game_check_handler(ctx: RequestContext):
     command = ctx.message.text.strip()
 
     if command.lower() == buttons.BACK_BUTTON.lower():
-        common_handlers.fallback_handler(ctx)
+        handlers.backward_handler(ctx)
         return
 
     ctx.session.set_data(misc.GAME_PASSWORD_KEY, command)

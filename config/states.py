@@ -1,3 +1,4 @@
+START_APP = "Start Application"
 MAIN_MENU = "Main Menu"
 MY_GAMES_MENU = "Game"
 SERVICE_MENU = "Service"

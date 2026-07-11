@@ -1,3 +1,6 @@
+# WELCOME GAME TEMPLATE
+WELCOME_MESSAGE = "Welcome to SecretSanta Game Renderer, {username}!".format
+
 # MAIN MENU TEMPLATES
 
 

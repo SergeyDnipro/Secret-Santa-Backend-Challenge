@@ -1,6 +1,5 @@
 import os
 import telebot
-import handlers.common_handlers
 import keyboards
 import queue, threading
 from dotenv import load_dotenv
@@ -9,7 +8,7 @@ from core.context import RequestContext
 from config import buttons
 from tools import serialize_game_list, serialize_game
 from service import game, notification, export, state, permission
-from handlers import common_handlers, handlers_mapping
+from handlers import common_handlers, handlers_mapping, backward_handler
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -44,12 +43,12 @@ def start(message, session: state.UserState):
     # main_logger.info(f"Start chat with user: {message.from_user.first_name} ({message.from_user.id})")
 
     session.clear_state()
-    # current_state = session.get_state()
+    current_state = session.get_state()
     ctx = build_context(message=message, session=session)
 
-    handlers.common_handlers.welcome_menu_handler(ctx)
-    # handler = handlers_mapping.get(current_state, common_handlers.fallback_handler)
-    # handler(ctx)
+    # handlers.common_handlers.welcome_menu_handler(ctx)
+    handler = handlers_mapping.get(current_state, backward_handler)
+    handler(ctx)
 
 
 @bot.message_handler(func=lambda message: True)
@@ -58,7 +57,7 @@ def handle_message(message, session: state.UserState):
 
     current_state = session.get_state()
     ctx = build_context(message=message, session=session)
-    handler = handlers_mapping.get(current_state, common_handlers.fallback_handler)
+    handler = handlers_mapping.get(current_state, backward_handler)
     handler(ctx)
 
     # if message.text == buttons.NEW_GAME_BUTTON:

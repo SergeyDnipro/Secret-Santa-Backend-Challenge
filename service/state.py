@@ -26,7 +26,11 @@ class UserState:
 
 
     def get_state(self):
-        return self.user_state_store.get(self.state_key) or states.MAIN_MENU
+        return self.user_state_store.get(self.state_key) or states.START_APP
+
+
+    def get_states(self):
+        return self.user_state_store.lrange(self.history_key, 0, -1)
 
 
     def set_state(self, state):
@@ -49,7 +53,7 @@ class UserState:
 
 
     def go_back(self):
-        previous_state = self.user_state_store.rpop(self.history_key) or states.MAIN_MENU
+        previous_state = self.user_state_store.rpop(self.history_key) or states.START_APP
         self.set_state(previous_state)
         return previous_state
 

@@ -3,6 +3,7 @@ from config import states
 
 
 handlers_mapping = {
+    states.START_APP: common_handlers.welcome_menu_handler,
     states.MAIN_MENU: common_handlers.main_page_handler,
     states.MY_GAMES_MENU: game_handlers.my_games_menu_handler,
     states.NEW_GAME_STARTS: game_handlers.new_game_creating_handler,
