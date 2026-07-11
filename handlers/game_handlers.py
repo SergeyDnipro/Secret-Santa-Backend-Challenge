@@ -16,7 +16,7 @@ def my_games_menu_handler(ctx: RequestContext):
         new_state = ctx.session.go_forward(states.JOIN_GAME_START)
         msg = f"Enter game name: "
     elif command == buttons.BACK_BUTTON.lower():
-        handlers.backward_handler(ctx)
+        common_handlers.backward_handler(ctx)
         return
     else:
         new_state = states.NOT_VALID_INPUT

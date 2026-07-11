@@ -2,6 +2,8 @@
 WELCOME_MESSAGE = "Welcome to SecretSanta Game {username}!"
 
 # MAIN MENU TEMPLATES
+GAME_MENU_MESSAGE = "You can start, join or run game"
+SERVICE_MENU_MESSAGE = "You view status, maintain or delete games"
 
 
 # GAME INTERACTING MESSAGES

@@ -1,3 +1,2 @@
 from handlers import game_handlers, service_handlers, common_handlers
 from handlers.handlers_mapping import handlers_mapping
-from handlers.backward_handler import backward_handler

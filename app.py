@@ -8,7 +8,7 @@ from core.context import RequestContext
 from config import buttons, state_instances
 from tools import serialize_game_list, serialize_game
 from service import game, notification, export, state, permission
-from handlers import common_handlers, handlers_mapping, backward_handler
+from handlers import common_handlers, handlers_mapping
 
 
 BASE_DIR = os.path.dirname(__file__) # project/
@@ -57,7 +57,7 @@ def handle_message(message, session: state.UserState):
 
     current_state = session.get_state()
     ctx = build_context(message=message, session=session)
-    handler = handlers_mapping.get(current_state, backward_handler)
+    handler = state_instances.STATE_DEFINITIONS.get(current_state).handler
     handler(ctx)
 
     # if message.text == buttons.NEW_GAME_BUTTON:

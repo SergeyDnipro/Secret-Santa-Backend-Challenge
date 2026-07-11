@@ -4,8 +4,8 @@ from config import states
 
 handlers_mapping = {
     states.START_APP: common_handlers.welcome_menu_handler,
-    states.MAIN_MENU: common_handlers.main_page_handler,
-    states.MY_GAMES_MENU: game_handlers.my_games_menu_handler,
+    # states.MAIN_MENU: common_handlers.main_page_handler,
+    states.GAMES_MENU: game_handlers.my_games_menu_handler,
     states.NEW_GAME_STARTS: game_handlers.new_game_creating_handler,
     states.NEW_GAME_CREATED: game_handlers.new_game_confirmation_handler,
     states.JOIN_GAME_START: game_handlers.join_game_handler,

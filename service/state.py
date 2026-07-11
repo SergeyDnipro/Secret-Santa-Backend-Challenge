@@ -64,7 +64,7 @@ class UserState:
         self.user_state_store.delete(self.data_key)
 
 
-    def reset_workflow(self, state=states.MAIN_MENU):
+    def reset_workflow(self, state=states.START_APP):
         self.user_state_store.delete(self.history_key)
         self.set_state(state)
 

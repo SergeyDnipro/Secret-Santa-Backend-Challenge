@@ -1,6 +1,6 @@
 START_APP = "Start Application"
-MAIN_MENU = "Main Menu"
-MY_GAMES_MENU = "Game"
+# MAIN_MENU = "Main Menu"
+GAMES_MENU = "Game"
 SERVICE_MENU = "Service"
 
 NEW_GAME_STARTS = "Creating New Game"
