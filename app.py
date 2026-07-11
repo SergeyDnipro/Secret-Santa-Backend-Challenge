@@ -5,7 +5,7 @@ import queue, threading
 from dotenv import load_dotenv
 from core.db_driver import db
 from core.context import RequestContext
-from config import buttons
+from config import buttons, state_instances
 from tools import serialize_game_list, serialize_game
 from service import game, notification, export, state, permission
 from handlers import common_handlers, handlers_mapping, backward_handler
@@ -47,7 +47,7 @@ def start(message, session: state.UserState):
     ctx = build_context(message=message, session=session)
 
     # handlers.common_handlers.welcome_menu_handler(ctx)
-    handler = handlers_mapping.get(current_state, backward_handler)
+    handler = state_instances.STATE_DEFINITIONS.get(current_state).handler
     handler(ctx)
 
 

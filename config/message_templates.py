@@ -1,11 +1,11 @@
 # WELCOME GAME TEMPLATE
-WELCOME_MESSAGE = "Welcome to SecretSanta Game Renderer, {username}!".format
+WELCOME_MESSAGE = "Welcome to SecretSanta Game {username}!"
 
 # MAIN MENU TEMPLATES
 
 
 # GAME INTERACTING MESSAGES
-JOIN_GAME_SUCCESS = "You joined game: {game_name} successfully!".format
+JOIN_GAME_SUCCESS = "You've joined game: {game_name} successfully!".format
 
 
 # ERRORS MESSAGES

@@ -1,8 +1,7 @@
 from dataclasses import dataclass, fields
 from datetime import datetime
 from symtable import Class
-from typing import Any, TypeVar, Type, Union, List
-
+from typing import Any, TypeVar, Type, Union, List, Callable
 
 T = TypeVar('T')
 
@@ -68,3 +67,10 @@ class ServiceResponse:
     success: bool
     message: str
     data: Any = None
+
+
+@dataclass(frozen=True)
+class StateDefinition:
+    default_message: Callable
+    handler: Callable
+    keyboard: Callable

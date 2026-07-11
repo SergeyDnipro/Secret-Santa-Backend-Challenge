@@ -1,5 +1,4 @@
 from typing import Union
-import service.state
 from models import Game, ServiceResponse, class_repr_converter, Player
 from core.db_driver import db
 from config import misc

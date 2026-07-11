@@ -1,17 +1,20 @@
-import renderers
-from config import states, buttons, message_templates
+# import renderers
+import renderers.common_renderers
+from config import states, buttons, state_instances
 from core.context import RequestContext
 
 
 def welcome_menu_handler(ctx: RequestContext):
     ctx.session.set_state(states.START_APP)
-    ctx.session.go_forward(states.MAIN_MENU)
-    keyboard_state = ctx.session.get_state()
+    # ctx.session.go_forward(states.MAIN_MENU)
+    current_state = ctx.session.get_state()
+    current_state_data = state_instances.STATE_DEFINITIONS.get(current_state)
     print(ctx.session.get_states())
     username = ctx.message.from_user.username or ctx.message.from_user.first_name
-    msg = message_templates.WELCOME_MESSAGE(username=username)
-    renderer = renderers.STATE_RENDERERS.get(keyboard_state)
-    renderer(ctx, msg=msg)
+    # msg = message_templates.WELCOME_MESSAGE(username=username)
+    # renderer = renderers.STATE_RENDERERS.get(keyboard_state)
+    # renderer(ctx)
+    renderers.common_renderers.welcome_game_renderer(ctx, current_state_data)
 
 
 def main_page_handler(ctx: RequestContext):

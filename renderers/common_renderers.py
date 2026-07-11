@@ -1,18 +1,21 @@
 import keyboards
 from config import states, misc
 from core.context import RequestContext
+from models import StateDefinition
 
 
-def welcome_game_renderer(ctx: RequestContext, msg=None):
-    username = ctx.message.from_user.username or ctx.message.from_user.first_name
+def welcome_game_renderer(ctx: RequestContext, state_data: StateDefinition, msg=None):
+    # username = ctx.message.from_user.username or ctx.message.from_user.first_name
+    #
+    # message_text = msg or f"Welcome to Secret Santa Game, {username}"
 
-    message_text = msg or f"Welcome to Secret Santa Game, {username}"
-
-    state = ctx.session.get_state()
+    # state = ctx.session.get_state()
+    message = state_data.default_message(ctx) or msg
+    keyboard = state_data.keyboard(ctx)
     ctx.bot.send_message(
         ctx.message.chat.id,
-        message_text,
-        reply_markup=keyboards.STATE_KEYBOARDS.get(state)(ctx)
+        message,
+        reply_markup=keyboard
     )
 
 
