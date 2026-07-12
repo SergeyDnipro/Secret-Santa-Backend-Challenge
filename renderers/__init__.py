@@ -1,2 +1,0 @@
-from renderers.renderers_mapping import STATE_RENDERERS
-from renderers import game_renderers, service_renderers, common_renderers
