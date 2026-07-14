@@ -1,6 +1,6 @@
 from telebot import types
 from telebot.types import Message
-from config import buttons, states
+from config import buttons, states, misc
 from core.context import RequestContext
 from keyboards.common_keyboards import get_back_button
 
@@ -19,8 +19,9 @@ def my_games_keyboard(ctx: RequestContext):
 
 def new_game_creating_keyboard(ctx: RequestContext):
     keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    default_players_qty_button = types.KeyboardButton(text=buttons.DEFAULT_PLAYERS_QTY)
     back_button = get_back_button()
-    keyboard.add(back_button)
+    keyboard.add(default_players_qty_button, back_button)
 
     return keyboard
 

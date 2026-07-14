@@ -44,6 +44,7 @@ class Game:
     created_at: datetime
     creator_telegram_id: int
     game_name: str
+    game_description: str
     game_passcode: str
     game_locked: int
     game_completed: int

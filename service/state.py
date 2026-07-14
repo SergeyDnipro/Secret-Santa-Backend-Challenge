@@ -29,10 +29,6 @@ class UserState:
         return self.user_state_store.get(self.state_key) or states.START_APP
 
 
-    def get_states(self):
-        return self.user_state_store.lrange(self.history_key, 0, -1)
-
-
     def set_state(self, state):
         self.user_state_store.set(self.state_key, state)
 

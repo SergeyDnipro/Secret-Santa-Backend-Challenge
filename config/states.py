@@ -1,9 +1,9 @@
 START_APP = "Start Application"
-# MAIN_MENU = "Main Menu"
 GAMES_MENU = "Game"
 SERVICE_MENU = "Service"
 
 NEW_GAME_STARTS = "Creating New Game"
+NEW_GAME_DESCRIPTION = "New game description"
 NEW_GAME_CREATED ="Created New Game"
 GET_GAME_DATA = "Get Game Data"
 

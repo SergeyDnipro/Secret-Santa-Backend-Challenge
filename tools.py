@@ -13,24 +13,26 @@ def serialize_game_list(game_list: List[Game]) -> str:
     final_row = ""
     for game_data in game_list:
         if not game_data.game_locked and not game_data.game_completed:
-            game_status = "Open"
+            game_status = "🔓"
         elif game_data.game_locked and not game_data.game_completed:
-            game_status = "Closed"
+            game_status = "🔒"
         else:
-            game_status = "Completed"
+            game_status = "🏁"
 
         game_date = game_data.created_at.strftime("%B %d, %Y")
         game_name = game_data.game_name
+        game_description = game_data.game_description
         game_passcode = game_data.game_passcode
         players_qty = game_data.players_count
         max_players_qty = game_data.max_players_qty
 
         final_row += (
-            f"Date: {game_date}\n"
-            f"ID: {game_name} | "
-            f"Passcode: {game_passcode}\n"
-            f"Players: {players_qty}/{max_players_qty} | "
-            f"Status: {game_status}\n\n"
+            # f"📆 {game_date}\n"
+            f"🎮 ID: {game_name}  |  {game_status}\n"
+            f"📝 Info: {game_description}\n"
+            # f"Passcode: {game_passcode}\n"
+            f"👥 Players: {players_qty}/{max_players_qty}\n"
+            # f"📆 {game_date}\n\n"
         )
 
     return final_row
@@ -44,7 +46,9 @@ def serialize_game(game_data: Game, players: List[Player]) -> Union[dict, str]:
     game_date = game_data.created_at.strftime("%B %d, %Y")
 
     msg = (
-        f"ID: {game_data.game_name}\n\n"
+        f"ID: {game_data.game_name}\n"
+        f"Passcode: {game_data.game_passcode}\n"
+        f"Description: {game_data.game_description}\n\n"
         f"Created: {game_date}\n"
         f"Locked: {locked}\n"
         f"Completed: {completed}\n"

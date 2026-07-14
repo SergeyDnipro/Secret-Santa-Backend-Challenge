@@ -13,7 +13,7 @@ class GameService:
         self.permission = permission
 
 
-    def create_new_game(self, *, creator_id: int, creator_username: str, max_players_qty: int) -> ServiceResponse:
+    def create_new_game(self, *, creator_id: int, creator_username: str, game_description: str, max_players_qty: int) -> ServiceResponse:
         success = False
         new_game_class_repr = None
 
@@ -26,6 +26,7 @@ class GameService:
 
             new_game_response = db.new_game(
                 game_name=misc.BASE_GAME_NAME.lower(),
+                game_description=game_description,
                 creator_id=creator_id,
                 creator_name=creator_username,
                 game_passcode=generate_passcode(),
@@ -39,7 +40,8 @@ class GameService:
             )
 
             success = True
-            response_msg = (f"New game created: {new_game_class_repr.game_name}. \n"
+            response_msg = (f"Game created\n"
+                            f"ID: {new_game_class_repr.game_name}\n"
                             f"Passcode: {new_game_class_repr.game_passcode}")
 
         except ValueError as e:
@@ -70,7 +72,7 @@ class GameService:
                 player_name=player_name,
                 player_telegram_id=player_telegram_id,
             )
-            message = message_templates.JOIN_GAME_SUCCESS(game_name=game_name)
+            message = message_templates.JOIN_GAME_SUCCESS_MESSAGE(game_name=game_name)
 
         except game_exceptions.GameAppException as exc:
             message = str(exc)

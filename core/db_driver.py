@@ -52,6 +52,7 @@ class SQLiteDatabaseConnection:
             creator_telegram_id INTEGER,
             creator_name TEXT,
             game_name TEXT NOT NULL UNIQUE,
+            game_description TEXT(150) NOT NULL,
             game_passcode TEXT NOT NULL,
             game_locked INTEGER DEFAULT 0,
             game_completed INTEGER DEFAULT 0,
@@ -93,6 +94,7 @@ class SQLiteDatabaseConnection:
             self,
             *,
             game_name: str,
+            game_description: str,
             creator_id: int,
             creator_name: str,
             game_passcode: str,
@@ -102,12 +104,13 @@ class SQLiteDatabaseConnection:
         """ Create the new game and return its name_id to telegram """
 
         query = """
-        INSERT INTO games (game_name, creator_telegram_id, creator_name, game_passcode, max_players_qty)
-        VALUES (:game_name, :creator_telegram_id, :creator_name, :game_passcode, :max_players_qty);
+        INSERT INTO games (game_name, game_description, creator_telegram_id, creator_name, game_passcode, max_players_qty)
+        VALUES (:game_name, :game_description, :creator_telegram_id, :creator_name, :game_passcode, :max_players_qty);
         """
 
         new_game_params = {
             "game_name": game_name,
+            "game_description": game_description,
             "creator_telegram_id": creator_id,
             "creator_name": creator_name,
             "game_passcode": game_passcode,
